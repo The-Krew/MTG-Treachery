@@ -15,13 +15,6 @@ import {
 } from "./internal/jsonloader";
 import { useEffect, useState } from "react";
 
-const classColors = [
-  "text-blue-500",
-  "text-red-500",
-  "text-red-500",
-  "text-yellow-500",
-];
-
 const FlipCard = ({
   isFlipped,
   direction = "y",
@@ -71,6 +64,16 @@ const FlipCard = ({
 };
 
 export default function HomeScreen() {
+  // tailwindcss-class-safelist
+  // text-blue-500 text-red-500 text-yellow-500
+
+  const classColors = [
+    "text-blue-500",
+    "text-red-500",
+    "text-red-500",
+    "text-yellow-500",
+  ];
+
   const isFlipped = useSharedValue(1);
 
   const [classIndex, setClassIndex] = useState(-1);
@@ -111,15 +114,15 @@ export default function HomeScreen() {
 
   return (
     <View className="flex pt-10 pb-56 px-4 items-center flex-col w-full h-full bg-slate-900 gap-2">
-      <Animated.View className="w-full h-20 items-center justify-center bg-stone-600/20 rounded-2xl">
+      <View className="w-full h-20 items-center justify-center bg-stone-600/20 rounded-2xl">
         {unveiled ? (
-          <Text className={"text-white text-2xl " + classColors[classIndex]}>
+          <Text className={"text-2xl " + classColors[classIndex]}>
             {classNames[classIndex]}{" "}
           </Text>
         ) : (
           <Text className="text-white text-2xl">Card Unveiled </Text>
         )}
-      </Animated.View>
+      </View>
 
       <FlipCard
         isFlipped={isFlipped}

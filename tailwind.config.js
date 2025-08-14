@@ -6,5 +6,6 @@ module.exports = {
   theme: {
     extend: {},
   },
+  safelist: ["text-blue-500", "text-red-500", "text-yellow-500"],
   plugins: [],
 };
