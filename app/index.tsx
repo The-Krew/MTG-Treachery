@@ -106,21 +106,25 @@ export default function HomeScreen() {
 
   if (classIndex === -1 || cardIndex === -1) {
     return (
-      <View className="flex-1 items-center justify-center bg-slate-900">
+      <View className="flex-1 items-center justify-center bg-zinc-900">
         <Text className="text-white">Loading...</Text>
       </View>
     );
   }
 
   return (
-    <View className="flex pt-10 pb-56 px-4 items-center flex-col w-full h-full bg-slate-900 gap-2">
-      <View className="w-full h-20 items-center justify-center bg-stone-600/20 rounded-2xl">
+    <View className="flex pt-10 pb-56 px-4 items-center flex-col w-full h-full bg-zinc-900 gap-2">
+      <View className="w-full h-20 items-center justify-center bg-zinc-600/20 rounded-2xl">
         {unveiled ? (
-          <Text className={"text-2xl " + classColors[classIndex]}>
+          <Text
+            className={"text-3xl font-extrabold " + classColors[classIndex]}
+          >
             {classNames[classIndex]}{" "}
           </Text>
         ) : (
-          <Text className="text-white text-2xl">Hidden Class </Text>
+          <Text className="text-white text-3xl font-extrabold">
+            Hidden Class{" "}
+          </Text>
         )}
       </View>
 
@@ -133,14 +137,14 @@ export default function HomeScreen() {
       />
       <View className="w-full h-14 items-center justify-center  flex flex-row gap-4">
         <Pressable
-          className="w-20 h-12 bg-slate-800 items-center justify-center rounded-2xl"
+          className="w-20 h-12 bg-blue-600/15 items-center justify-center rounded-2xl border border-transparent active:bg-blue-600/30 active:border-blue-400 transition-colors duration-75 ease-in-out"
           onPress={handlePress}
         >
-          <Text className="text-white">Unveil </Text>
+          <Text className="text-white">{!unveiled ? "Show" : "Hide"} </Text>
         </Pressable>
 
         <Pressable
-          className="w-20 h-12 bg-slate-800 items-center justify-center rounded-2xl"
+          className="w-20 h-12 bg-blue-600/20 items-center justify-center rounded-2xl"
           onPress={() => {
             const randomClassIndex = getRandomClassIndex();
             const randomCardIndex = getRandomCardIndex(
@@ -150,7 +154,7 @@ export default function HomeScreen() {
             setCardIndex(randomCardIndex);
           }}
         >
-          <Text className="text-white">Next</Text>
+          <Text className="text-blue-600">Next </Text>
         </Pressable>
       </View>
     </View>
