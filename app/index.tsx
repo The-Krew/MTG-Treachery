@@ -99,7 +99,7 @@ export default function HomeScreen() {
 
   const handlePress = () => {
     isFlipped.value = withTiming(isFlipped.value === 0 ? 1 : 0, {
-      duration: 500,
+      duration: 250,
     });
     setUnveiled(!unveiled);
   };
@@ -120,7 +120,7 @@ export default function HomeScreen() {
             {classNames[classIndex]}{" "}
           </Text>
         ) : (
-          <Text className="text-white text-2xl">Card Unveiled </Text>
+          <Text className="text-white text-2xl">Hidden Class </Text>
         )}
       </View>
 
