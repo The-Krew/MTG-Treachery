@@ -1,4 +1,3 @@
-import "./global.css";
 import { View, Text, Pressable, Image } from "react-native";
 import Animated, {
   interpolate,
@@ -99,7 +98,7 @@ export default function HomeScreen() {
 
   const handlePress = () => {
     isFlipped.value = withTiming(isFlipped.value === 0 ? 1 : 0, {
-      duration: 250,
+      duration: 500,
     });
     setUnveiled(!unveiled);
   };
