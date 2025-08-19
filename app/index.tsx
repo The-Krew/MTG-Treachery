@@ -13,6 +13,7 @@ import {
   classNames,
 } from "./internal/jsonloader";
 import { useEffect, useState } from "react";
+import { usePlayerContext } from "./internal/playerContext";
 
 const FlipCard = ({
   isFlipped,
@@ -66,6 +67,8 @@ export default function HomeScreen() {
   // tailwindcss-class-safelist
   // text-blue-500 text-red-500 text-yellow-500
 
+  const { cardClass, card } = usePlayerContext();
+
   const classColors = [
     "text-blue-500",
     "text-red-500",
@@ -75,26 +78,18 @@ export default function HomeScreen() {
 
   const isFlipped = useSharedValue(1);
 
-  const [classIndex, setClassIndex] = useState(-1);
-  const [cardIndex, setCardIndex] = useState(-1);
   const [unveiled, setUnveiled] = useState(false);
 
   useEffect(() => {
-    const randomClassIndex = getRandomClassIndex();
-    const randomCardIndex = getRandomCardIndex(cardClasses[randomClassIndex]);
-    setClassIndex(randomClassIndex);
-    setCardIndex(randomCardIndex);
-
-    if (randomClassIndex === -1 || randomCardIndex === -1) {
-      console.error("Failed to initialize card indices.");
-    }
-
     // Leader is always shown
-    if (randomClassIndex === 3) {
+    if (cardClass === 3) {
       isFlipped.value = withTiming(0, { duration: 0 });
       setUnveiled(true);
+    } else {
+      isFlipped.value = withTiming(1, { duration: 0 });
+      setUnveiled(false);
     }
-  }, []);
+  }, [cardClass, isFlipped]);
 
   const handlePress = () => {
     isFlipped.value = withTiming(isFlipped.value === 0 ? 1 : 0, {
@@ -103,7 +98,7 @@ export default function HomeScreen() {
     setUnveiled(!unveiled);
   };
 
-  if (classIndex === -1 || cardIndex === -1) {
+  if (cardClass === -1 || card === -1) {
     return (
       <View className="flex-1 items-center justify-center bg-zinc-900">
         <Text className="text-white">Loading...</Text>
@@ -115,10 +110,8 @@ export default function HomeScreen() {
     <View className="flex pt-10 pb-56 px-4 items-center flex-col w-full h-full bg-zinc-900 gap-2">
       <View className="w-full h-20 items-center justify-center bg-zinc-600/20 rounded-2xl">
         {unveiled ? (
-          <Text
-            className={"text-3xl font-extrabold " + classColors[classIndex]}
-          >
-            {classNames[classIndex]}{" "}
+          <Text className={"text-3xl font-extrabold " + classColors[cardClass]}>
+            {classNames[cardClass]}{" "}
           </Text>
         ) : (
           <Text className="text-white text-3xl font-extrabold">
@@ -129,9 +122,7 @@ export default function HomeScreen() {
 
       <FlipCard
         isFlipped={isFlipped}
-        FrontSide={
-          <FrontSide url={getCardImage(classIndex, cardIndex) || ""} />
-        }
+        FrontSide={<FrontSide url={getCardImage(cardClass, card) || ""} />}
         BackSide={<BackSide />}
       />
       <View className="w-full h-14 items-center justify-center  flex flex-row gap-4">
@@ -140,20 +131,6 @@ export default function HomeScreen() {
           onPress={handlePress}
         >
           <Text className="text-white">{!unveiled ? "Show" : "Hide"} </Text>
-        </Pressable>
-
-        <Pressable
-          className="w-20 h-12 bg-blue-600/20 items-center justify-center rounded-2xl"
-          onPress={() => {
-            const randomClassIndex = getRandomClassIndex();
-            const randomCardIndex = getRandomCardIndex(
-              cardClasses[randomClassIndex],
-            );
-            setClassIndex(randomClassIndex);
-            setCardIndex(randomCardIndex);
-          }}
-        >
-          <Text className="text-blue-600">Next </Text>
         </Pressable>
       </View>
     </View>
