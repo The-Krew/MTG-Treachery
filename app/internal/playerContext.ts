@@ -3,10 +3,13 @@
 import { createContext, useContext } from "react";
 
 export interface PlayerContextType {
+  idRef?: React.MutableRefObject<string | undefined>;
+  code: string;
   cardClass: number;
   card: number;
   setClass: (classIndex: number) => void;
   setCard: (cardIndex: number) => void;
+  setCode: (code: string) => void;
 }
 
 export const PlayerContext = createContext<PlayerContextType | undefined>(

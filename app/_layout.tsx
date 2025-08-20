@@ -3,19 +3,24 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { Drawer } from "expo-router/drawer";
 import { DarkTheme, ThemeProvider } from "@react-navigation/native";
 import { Text } from "react-native";
-import { PlayerContext } from "./internal/playerContext";
+import { generateCode, PlayerContext } from "./internal/playerContext";
 import React from "react";
 
 export default function Layout() {
   // Context setup for player
   const [cardClass, setCardClass] = React.useState(-1);
   const [card, setCard] = React.useState(-1);
+  const [code, setCode] = React.useState("");
+  const idRef = React.useRef<string>(generateCode());
 
   const playerContextValue = {
     cardClass: cardClass,
     card,
     setClass: setCardClass,
     setCard,
+    code,
+    setCode,
+    idRef: idRef,
   };
 
   console.log("Player Context Value:", playerContextValue);
