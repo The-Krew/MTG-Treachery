@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, Pressable, Share } from "react-native";
+import { View, Text, Share } from "react-native";
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -7,7 +7,9 @@ import Animated, {
 } from "react-native-reanimated";
 import { CirclePlus, Copy, Share2 } from "lucide-react-native";
 import * as Clipboard from "expo-clipboard";
-import { generateCode, usePlayerContext } from "../internal/playerContext";
+import { generateCode, usePlayerContext } from "@/components/playerContext";
+import { Button } from "@/components/ui/button";
+import { useInfoModalContext } from "@/components/interface/status";
 
 export default function LobbyDetails({
   wsRef,
@@ -17,6 +19,7 @@ export default function LobbyDetails({
   // --------------------------------------------------------------------------------------
   // States
   const { code, setCode } = usePlayerContext();
+  const { openModal } = useInfoModalContext();
 
   // --------------------------------------------------------------------------------------
   // Create animation
@@ -67,6 +70,11 @@ export default function LobbyDetails({
         setCode(genCode);
       }
     } else {
+      openModal({
+        title: "Error",
+        message: "You are already in a lobby!",
+        styleKey: "error",
+      });
       scaleC.value = withTiming(0.7, { duration: 100 }, (finished) => {
         if (finished) {
           scaleC.value = withTiming(1, { duration: 100 });
@@ -84,6 +92,12 @@ export default function LobbyDetails({
 
     if (code !== "") {
       Clipboard.setStringAsync(code);
+    } else {
+      openModal({
+        title: "Error",
+        message: "You need to be in lobby to use this action!",
+        styleKey: "error",
+      });
     }
   }
 
@@ -106,39 +120,41 @@ export default function LobbyDetails({
       }
 
       shareCode();
+    } else {
+      openModal({
+        title: "Error",
+        message: "You need to be in lobby to use this action!",
+        styleKey: "error",
+      });
     }
   }
   return (
     <>
       <View className="w-full h-50 items-center justify-center bg-zinc-600/20 rounded-2xl py-5 ">
         <View className="w-full h-20 flex-row items-center justify-center gap-4">
-          <View className="w-min h-min bg-purple-500/10 border border-purple-300/50 px-4 py-2 rounded-full flex items-center justify-center">
-            <Text className="text-white text-2xl font-bold">
+          <View className="w-32 h-min bg-purple-500/10 border border-purple-300/50 px-4 py-2 rounded-full flex items-center justify-center">
+            <Text
+              className={
+                "text-2xl font-bold" +
+                (code === "" ? " text-gray-400" : " text-white")
+              }
+            >
               {code === "" ? "XXXXXX" : code}
             </Text>
           </View>
-          <Pressable
-            className="w-12 h-12 items-center justify-center rounded-xl border border-transparent active:bg-purple-500/20 active:border-purple-400/50 transition-colors duration-200 ease-in-out"
-            onPress={handleCopyLobbyCode}
-          >
+          <Button size="tiny" color="ghost" onPress={handleCopyLobbyCode}>
             <Animated.View style={[scaleAnimationP]}>
               <Copy size={25} color="white" />
             </Animated.View>
-          </Pressable>
-          <Pressable
-            className="w-12 h-12 items-center justify-center rounded-xl border border-transparent active:bg-purple-500/20 active:border-purple-400/50 transition-colors duration-200 ease-in-out"
-            onPress={handleCreateLobby}
-          >
+          </Button>
+          <Button size="tiny" color="ghost" onPress={handleCreateLobby}>
             <Animated.View style={[rotateAnimationC, scaleAnimationC]}>
               <CirclePlus size={25} color="white" />
             </Animated.View>
-          </Pressable>
+          </Button>
         </View>
         <View className="w-full h-20 items-center justify-center px-10 py-4">
-          <Pressable
-            className="w-full h-full bg-purple-500/10 rounded-xl flex items-center justify-center border border-purple-300/50 active:bg-purple-500/20 active:border-purple-400/50 transition-colors duration-75 ease-in-out"
-            onPress={handleShareLobbyCode}
-          >
+          <Button size="full" color="active" onPress={handleShareLobbyCode}>
             <Animated.View
               className="flex-row items-center justify-center gap-4"
               style={[scaleAnimationS]}
@@ -148,7 +164,7 @@ export default function LobbyDetails({
                 Share this code
               </Text>
             </Animated.View>
-          </Pressable>
+          </Button>
         </View>
       </View>
     </>

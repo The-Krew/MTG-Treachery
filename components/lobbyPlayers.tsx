@@ -1,7 +1,7 @@
 import React from "react";
 import { View, Text, ScrollView } from "react-native";
-import { usePlayerContext } from "../internal/playerContext";
-import { UsersRound } from "lucide-react-native";
+import { usePlayerContext } from "@/components/playerContext";
+import { CircleQuestionMark, UsersRound } from "lucide-react-native";
 
 export default function LobbyPlayers({ players }: { players: string[] }) {
   // --------------------------------------------------------------------------------------
@@ -28,12 +28,14 @@ export default function LobbyPlayers({ players }: { players: string[] }) {
                 >
                   <View
                     className={
-                      "h-12 w-12 bg-zinc-600/40 rounded-full " +
+                      "h-14 w-14 bg-transparent rounded-full  justify-center items-center " +
                       (player === idRef?.current
-                        ? "border border-blue-300/60"
+                        ? "border-2 border-blue-400/60"
                         : "")
                     }
-                  />
+                  >
+                    <CircleQuestionMark size={40} color="#7D7D7D" />
+                  </View>
                   <View className="w-full h-full flex-row items-center justify-between pr-20">
                     <Text
                       className={

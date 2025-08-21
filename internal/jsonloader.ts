@@ -1,5 +1,5 @@
-import jsonData from "../images/treachery-cards.json";
-import images from "../images/card_images.json";
+import jsonData from "@/images/treachery-cards.json";
+import images from "@/images/card_images.json";
 
 export const classNames = ["Guardian", "Assassin", "Traitor", "Leader"];
 

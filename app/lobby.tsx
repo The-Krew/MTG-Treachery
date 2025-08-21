@@ -1,14 +1,16 @@
 import { useRouter } from "expo-router";
-import { usePlayerContext } from "./internal/playerContext";
-import { useEffect, useRef, useState } from "react";
-import { cardClasses, getRandomCardIndex } from "./internal/jsonloader";
-import LobbyScreen from "./components/lobbyScreen";
 import { AppState } from "react-native";
+import { useEffect, useRef, useState } from "react";
+import { usePlayerContext } from "@/components/playerContext";
+import { cardClasses, getRandomCardIndex } from "@/internal/jsonloader";
+import LobbyScreen from "@/components/lobbyScreen";
+import { useInfoModalContext } from "@/components/interface/status";
 
 export default function LobbyWrapper() {
   // --------------------------------------------------------------------------------------
   // Context
   const { setCard, setClass, code, setCode, idRef } = usePlayerContext();
+  const { openModal } = useInfoModalContext();
 
   // --------------------------------------------------------------------------------------
   // Refs
@@ -37,6 +39,12 @@ export default function LobbyWrapper() {
       "change",
       handleAppStateChange,
     );
+
+    if (wsRef.current === null) {
+      wsRef.current = new WebSocket(
+        "wss://treachery.thekrew.app:3000/" + idRef?.current,
+      );
+    }
 
     // Clean up using .remove()
     return () => {
@@ -77,6 +85,11 @@ export default function LobbyWrapper() {
 
         if (res !== "0") {
           setCode("");
+          openModal({
+            title: "Error",
+            message: "Failed to create lobby, please try again.",
+            styleKey: "error",
+          });
         }
       }
 
@@ -84,6 +97,11 @@ export default function LobbyWrapper() {
         const res = message.split("-")[1];
 
         if (res !== "0") {
+          openModal({
+            title: "Error",
+            message: "Lobby does not exist or is full.",
+            styleKey: "error",
+          });
           setCode("");
           setPlayers([]);
         }
@@ -95,6 +113,12 @@ export default function LobbyWrapper() {
         if (res === "0") {
           setCode("");
           setPlayers([]);
+        } else {
+          openModal({
+            title: "Error",
+            message: "Failed to leave lobby, please try again.",
+            styleKey: "error",
+          });
         }
       }
 
@@ -108,7 +132,14 @@ export default function LobbyWrapper() {
           setClass(index);
           setCard(getRandomCardIndex(cardClasses[index]));
 
-          router.push("/");
+          router.push("/game");
+        } else {
+          openModal({
+            title: "Warning",
+            message:
+              "Not enough players to start the game. \n Minimum 4 players required.",
+            styleKey: "warning",
+          });
         }
       }
 
@@ -128,7 +159,17 @@ export default function LobbyWrapper() {
     if (wsRef.current.readyState === WebSocket.OPEN && code !== "") {
       wsRef.current.send("I");
     }
-  }, [setCard, setClass, idRef, wsRef, router, setCode, code, reload]);
+  }, [
+    setCard,
+    setClass,
+    idRef,
+    wsRef,
+    router,
+    setCode,
+    code,
+    reload,
+    openModal,
+  ]);
 
   // Start game handling
 

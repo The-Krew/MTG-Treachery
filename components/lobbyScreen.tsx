@@ -1,10 +1,13 @@
 import React from "react";
-import { View, Text, Pressable } from "react-native";
+import { View, Text } from "react-native";
 import { Play, LogOut } from "lucide-react-native";
-import { usePlayerContext } from "../internal/playerContext";
-import JoinLobby from "./joinLobby";
-import LobbyDetails from "./lobbyDetails";
-import LobbyPlayers from "./lobbyPlayers";
+import { usePlayerContext } from "@/components/playerContext";
+import JoinLobby from "@/components/joinLobby";
+import LobbyDetails from "@/components/lobbyDetails";
+import LobbyPlayers from "@/components/lobbyPlayers";
+import { useConfirmModalContext } from "@/components/interface/confirm";
+import { Button } from "@/components/ui/button";
+import { useInfoModalContext } from "@/components/interface/status";
 
 export default function LobbyScreen({
   wsRef,
@@ -16,19 +19,39 @@ export default function LobbyScreen({
   // --------------------------------------------------------------------------------------
   // Context
   const { code, setCode } = usePlayerContext();
+  const { openModal } = useConfirmModalContext();
+  const { openModal: openInfoModal } = useInfoModalContext();
 
   // --------------------------------------------------------------------------------------
   // handlers
   function handleLeaveLobby() {
     if (code !== "") {
-      wsRef.current?.send("L " + code);
-      setCode("");
+      openModal({
+        title: "Leave Lobby",
+        message: "Are you sure you want to leave the lobby?",
+        onAcceptCallback: () => {
+          wsRef.current?.send("L " + code);
+          setCode("");
+        },
+      });
+    } else {
+      openInfoModal({
+        title: "Error",
+        message: "You are not in a lobby!",
+        styleKey: "error",
+      });
     }
   }
 
   function handleStartGame() {
     if (code !== "") {
       wsRef.current?.send("S " + code);
+    } else {
+      openInfoModal({
+        title: "Error",
+        message: "You are not in a lobby!",
+        styleKey: "error",
+      });
     }
   }
 
@@ -46,10 +69,7 @@ export default function LobbyScreen({
         <LobbyPlayers players={players} />
 
         <View className="w-full h-28 items-center justify-center flex flex-row gap-10">
-          <Pressable
-            className="w-44 h-24 bg-red-800/20 rounded-2xl items-center justify-center border border-transparent active:bg-red-600/30 active:border-red-400 transition-colors duration-75 ease-in-out"
-            onPress={handleLeaveLobby}
-          >
+          <Button size="md" color="danger" onPress={handleLeaveLobby}>
             <LogOut size={26} color="#D19D9D" />
             <Text
               className="text-md text-center mt-1"
@@ -57,11 +77,8 @@ export default function LobbyScreen({
             >
               Leave{" "}
             </Text>
-          </Pressable>
-          <Pressable
-            className="w-44 h-24 bg-blue-700/20 rounded-2xl items-center justify-center border border-transparent active:bg-blue-600/30 active:border-blue-400 transition-colors duration-75 ease-in-out"
-            onPress={handleStartGame}
-          >
+          </Button>
+          <Button color="primary" size="md" onPress={handleStartGame}>
             <Play size={26} color="#9DAFD1" />
             <Text
               className="text-md text-center mt-1"
@@ -69,7 +86,7 @@ export default function LobbyScreen({
             >
               Start{" "}
             </Text>
-          </Pressable>
+          </Button>
         </View>
       </View>
     </>

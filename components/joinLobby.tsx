@@ -1,12 +1,14 @@
 import { MoveRight } from "lucide-react-native";
 import React, { useState } from "react";
-import { View, TextInput, Pressable } from "react-native";
+import { View, TextInput, Keyboard } from "react-native";
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
   withTiming,
 } from "react-native-reanimated";
-import { usePlayerContext } from "../internal/playerContext";
+import { usePlayerContext } from "@/components/playerContext";
+import { Button } from "@/components/ui/button";
+import { useInfoModalContext } from "@/components/interface/status";
 
 export default function JoinLobby({
   wsRef,
@@ -16,6 +18,7 @@ export default function JoinLobby({
   // --------------------------------------------------------------------------------------
   // Context
   const { code, setCode } = usePlayerContext();
+  const { openModal } = useInfoModalContext();
 
   // Animation
   const scale = useSharedValue(1);
@@ -27,6 +30,7 @@ export default function JoinLobby({
   const [text, onChangeText] = useState("");
 
   function handleJoinLobby(lcode: string) {
+    Keyboard.dismiss();
     if (!wsRef.current) {
       console.error("WebSocket is not initialized");
       return;
@@ -36,6 +40,18 @@ export default function JoinLobby({
       wsRef.current?.send("J " + lcode);
 
       setCode(lcode);
+    } else if (lcode && code !== "") {
+      openModal({
+        title: "Error",
+        message: "You are already in a lobby!",
+        styleKey: "error",
+      });
+    } else {
+      openModal({
+        title: "Error",
+        message: "Please enter a valid code!",
+        styleKey: "error",
+      });
     }
   }
 
@@ -54,8 +70,10 @@ export default function JoinLobby({
             className="text-white text-2xl font-bold"
           />
         </View>
-        <Pressable
-          className="w-12 h-12 items-center bg-purple-500/10 justify-center rounded-xl border border-transparent active:bg-purple-500/20 active:border-purple-400/50 transition-colors duration-200 ease-in-out "
+        <Button
+          size="xs"
+          color="active"
+          rounded="lg"
           onPress={() => {
             scale.value = withTiming(0.7, { duration: 100 }, (finished) => {
               if (finished) {
@@ -69,7 +87,7 @@ export default function JoinLobby({
           <Animated.View style={scaleAnimation}>
             <MoveRight size={32} color="white" />
           </Animated.View>
-        </Pressable>
+        </Button>
       </View>
     </>
   );
