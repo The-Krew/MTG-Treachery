@@ -1,7 +1,14 @@
 import jsonData from "@/images/treachery-cards.json";
 import images from "@/images/card_images.json";
 
-export const classNames = ["Guardian", "Assassin", "Traitor", "Leader"];
+export const roles = ["Guardian", "Assassin", "Traitor", "Leader"];
+
+const roleImages: { [key: string]: string } = {
+  Guardian: "https://mtgtreachery.net/images/icon-gdn.png",
+  Traitor: "https://mtgtreachery.net/images/icon-trt.png",
+  Leader: "https://mtgtreachery.net/images/icon-ldr.png",
+  Assassin: "https://mtgtreachery.net/images/icon-ass.png",
+};
 
 const guardianCards = jsonData["guardian"];
 const assassinCards = jsonData["assassin"];
@@ -29,6 +36,17 @@ export const getRandomClassIndex = () => {
 export const getRandomCardIndex = (cardClass: any) => {
   const randomIndex = Math.floor(Math.random() * cardClass.length);
   return randomIndex;
+};
+
+export const getRoleInfo = (role: number) => {
+  if (role < 0 || role >= roles.length) {
+    console.error(`Role index ${role} is out of bounds`);
+    return null;
+  }
+  return {
+    name: roles[role],
+    img_src: roleImages[roles[role]],
+  };
 };
 
 export const getCardInfo = (classI: number, cardI: number) => {

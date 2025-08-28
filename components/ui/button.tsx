@@ -17,6 +17,7 @@ const buttonClasses = cva(
           "border-transparent active:bg-purple-500/20 active:border-purple-400/50",
         active:
           "bg-purple-500/10 border-purple-300/50 active:bg-purple-500/20 active:border-purple-400/50",
+        disabled: "bg-gray-800/20 border-transparent text-gray-300",
       },
       size: {
         tiny: "w-12 h-12",
@@ -50,7 +51,7 @@ export function Button({
   children,
   onPress,
 }: {
-  color?: "primary" | "danger" | "success" | "ghost" | "active";
+  color?: "primary" | "danger" | "success" | "ghost" | "active" | "disabled";
   size?: "sm" | "md" | "lg" | "tiny" | "full" | "xs";
   rounded?: "none" | "xs" | "sm" | "md" | "lg" | "full";
   children: React.ReactNode;

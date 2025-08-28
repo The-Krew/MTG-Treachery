@@ -8,13 +8,14 @@ import LobbyPlayers from "@/components/lobbyPlayers";
 import { useConfirmModalContext } from "@/components/interface/confirm";
 import { Button } from "@/components/ui/button";
 import { useInfoModalContext } from "@/components/interface/status";
+import { Player, Request } from "@/internal/types";
 
 export default function LobbyScreen({
   wsRef,
   players,
 }: {
   wsRef: React.MutableRefObject<WebSocket | null>;
-  players: string[];
+  players: Player[];
 }) {
   // --------------------------------------------------------------------------------------
   // Context
@@ -30,7 +31,12 @@ export default function LobbyScreen({
         title: "Leave Lobby",
         message: "Are you sure you want to leave the lobby?",
         onAcceptCallback: () => {
-          wsRef.current?.send("L " + code);
+          const req: Request = {
+            type: "lobby",
+            method: "leave",
+            body: { code: code },
+          };
+          wsRef.current?.send(JSON.stringify(req));
           setCode("");
         },
       });
@@ -45,7 +51,12 @@ export default function LobbyScreen({
 
   function handleStartGame() {
     if (code !== "") {
-      wsRef.current?.send("S " + code);
+      const req: Request = {
+        type: "game",
+        method: "start",
+        body: { code: code },
+      };
+      wsRef.current?.send(JSON.stringify(req));
     } else {
       openInfoModal({
         title: "Error",

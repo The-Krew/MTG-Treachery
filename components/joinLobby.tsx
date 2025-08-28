@@ -9,6 +9,7 @@ import Animated, {
 import { usePlayerContext } from "@/components/playerContext";
 import { Button } from "@/components/ui/button";
 import { useInfoModalContext } from "@/components/interface/status";
+import { Request } from "@/internal/types";
 
 export default function JoinLobby({
   wsRef,
@@ -37,7 +38,12 @@ export default function JoinLobby({
     }
 
     if (lcode && code === "") {
-      wsRef.current?.send("J " + lcode);
+      const req: Request = {
+        type: "lobby",
+        method: "join",
+        body: { code: lcode },
+      };
+      wsRef.current?.send(JSON.stringify(req));
 
       setCode(lcode);
     } else if (lcode && code !== "") {

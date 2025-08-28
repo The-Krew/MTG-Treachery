@@ -5,7 +5,7 @@ import { generateCode, PlayerContext } from "@/components/playerContext";
 import React from "react";
 import ConfirmModal from "@/components/interface/confirm";
 import InfoModal from "@/components/interface/status";
-import { Slot } from "expo-router";
+import WebSocketWrapper from "@/app/index";
 
 export default function Layout() {
   // Context setup for player
@@ -32,7 +32,7 @@ export default function Layout() {
         <InfoModal>
           <GestureHandlerRootView style={{ flex: 1 }}>
             <ThemeProvider value={DarkTheme}>
-              <Slot />
+              <WebSocketWrapper />
             </ThemeProvider>
           </GestureHandlerRootView>
         </InfoModal>
@@ -40,24 +40,3 @@ export default function Layout() {
     </PlayerContext.Provider>
   );
 }
-
-/*
-              <Drawer>
-                <Drawer.Screen
-                  name="lobby"
-                  options={{
-                    title: "lobby",
-                    headerShown: false,
-                    drawerLabel: "Lobby",
-                  }}
-                />
-                <Drawer.Screen
-                  name="index"
-                  options={{
-                    title: "Home",
-                    headerShown: false,
-                    drawerLabel: "Home",
-                  }}
-                />
-              </Drawer>
-*/

@@ -10,6 +10,7 @@ import * as Clipboard from "expo-clipboard";
 import { generateCode, usePlayerContext } from "@/components/playerContext";
 import { Button } from "@/components/ui/button";
 import { useInfoModalContext } from "@/components/interface/status";
+import { Request } from "@/internal/types";
 
 export default function LobbyDetails({
   wsRef,
@@ -64,8 +65,21 @@ export default function LobbyDetails({
       const genCode = generateCode();
       if (genCode && genCode !== "") {
         setCode(genCode);
-        wsRef.current?.send("C " + genCode);
-        wsRef.current?.send("I " + genCode);
+
+        const req: Request = {
+          type: "lobby",
+          method: "create",
+          body: { code: genCode },
+        };
+        wsRef.current?.send(JSON.stringify(req));
+
+        const reqInfo: Request = {
+          type: "info",
+          method: "info",
+          body: { code: genCode },
+        };
+
+        wsRef.current?.send(JSON.stringify(reqInfo));
 
         setCode(genCode);
       }
