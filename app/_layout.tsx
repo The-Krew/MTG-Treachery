@@ -6,6 +6,7 @@ import React from "react";
 import ConfirmModal from "@/components/interface/confirm";
 import InfoModal from "@/components/interface/status";
 import WebSocketWrapper from "@/app/index";
+import { StatusBar } from "react-native";
 
 export default function Layout() {
   // Context setup for player
@@ -32,6 +33,7 @@ export default function Layout() {
         <InfoModal>
           <GestureHandlerRootView style={{ flex: 1 }}>
             <ThemeProvider value={DarkTheme}>
+              <StatusBar hidden={true} />
               <WebSocketWrapper />
             </ThemeProvider>
           </GestureHandlerRootView>

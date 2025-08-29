@@ -7,6 +7,7 @@ import GameRole from "@/components/gameRole";
 import GameControls from "@/components/gameControls";
 import { Player } from "@/internal/types";
 import GameRoleTracker from "./gameRoleTracker";
+import Container from "./ui/container";
 
 export default function GameScreen({
   wsRef,
@@ -52,7 +53,7 @@ export default function GameScreen({
   }
 
   return (
-    <View className="flex pt-10 pb-56 px-4 items-center flex-col w-full h-full bg-zinc-900 gap-2">
+    <Container>
       <GameRole unveiled={unveiled} role={role} />
       <FlipCard
         isFlipped={isFlipped}
@@ -70,6 +71,6 @@ export default function GameScreen({
         didUnveil={didUnveil}
         setDidUnveil={setDidUnveil}
       />
-    </View>
+    </Container>
   );
 }

@@ -41,7 +41,7 @@ export function FlipCard({
   });
 
   return (
-    <View className="w-full h-full max-w-sm max-h-[40rem] aspect-[2/3]">
+    <View className="w-full h-full max-h-[36.5rem] ">
       <Animated.View className="absolute inset-0" style={[frontAnimatedStyle]}>
         {FrontSide}
       </Animated.View>

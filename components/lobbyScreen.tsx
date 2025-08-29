@@ -9,6 +9,8 @@ import { useConfirmModalContext } from "@/components/interface/confirm";
 import { Button } from "@/components/ui/button";
 import { useInfoModalContext } from "@/components/interface/status";
 import { Player, Request } from "@/internal/types";
+import Container from "./ui/container";
+import Header from "./ui/header";
 
 export default function LobbyScreen({
   wsRef,
@@ -67,39 +69,35 @@ export default function LobbyScreen({
   }
 
   return (
-    <>
-      <View className="w-full h-screen flex-1 flex-col px-4 items-center bg-zinc-900 gap-4">
-        <View className="w-full h-20 items-center justify-center mt-10">
-          <Text className="text-white text-3xl font-bold">
-            Lobby managment{" "}
+    <Container>
+      <Header>
+        <Text className="text-white text-3xl font-bold">Lobby managment </Text>
+      </Header>
+
+      <LobbyDetails wsRef={wsRef} />
+      <JoinLobby wsRef={wsRef} />
+      <LobbyPlayers players={players} />
+
+      <View className="w-full h-28 items-center justify-center flex flex-row gap-10">
+        <Button size="md" color="danger" onPress={handleLeaveLobby}>
+          <LogOut size={26} color="#D19D9D" />
+          <Text
+            className="text-md text-center mt-1"
+            style={{ color: "#D19D9D" }}
+          >
+            Leave{" "}
           </Text>
-        </View>
-
-        <LobbyDetails wsRef={wsRef} />
-        <JoinLobby wsRef={wsRef} />
-        <LobbyPlayers players={players} />
-
-        <View className="w-full h-28 items-center justify-center flex flex-row gap-10">
-          <Button size="md" color="danger" onPress={handleLeaveLobby}>
-            <LogOut size={26} color="#D19D9D" />
-            <Text
-              className="text-md text-center mt-1"
-              style={{ color: "#D19D9D" }}
-            >
-              Leave{" "}
-            </Text>
-          </Button>
-          <Button color="primary" size="md" onPress={handleStartGame}>
-            <Play size={26} color="#9DAFD1" />
-            <Text
-              className="text-md text-center mt-1"
-              style={{ color: "#9DAFD1" }}
-            >
-              Start{" "}
-            </Text>
-          </Button>
-        </View>
+        </Button>
+        <Button color="primary" size="md" onPress={handleStartGame}>
+          <Play size={26} color="#9DAFD1" />
+          <Text
+            className="text-md text-center mt-1"
+            style={{ color: "#9DAFD1" }}
+          >
+            Start{" "}
+          </Text>
+        </Button>
       </View>
-    </>
+    </Container>
   );
 }

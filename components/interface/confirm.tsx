@@ -8,10 +8,12 @@ export interface ConfirmModalContextType {
     title,
     message,
     onAcceptCallback,
+    onCancelCallback,
   }: {
     title: string;
     message: string;
     onAcceptCallback?: () => void;
+    onCancelCallback?: () => void;
   }) => void;
   closeModal: () => void;
   isOpen: boolean;
@@ -47,20 +49,27 @@ export default function ConfirmModal({
     undefined,
   );
 
+  const [onCancel, setOnCancel] = React.useState<(() => void) | undefined>(
+    undefined,
+  );
+
   function openModal({
     title,
     message,
     onAcceptCallback,
+    onCancelCallback,
   }: {
     title: string;
     message: string;
     onAcceptCallback?: () => void;
+    onCancelCallback?: () => void;
   }) {
     if (message !== "" && title !== "") {
       setTitle(title);
       setMessage(message);
       setIsOpen(true);
       setOnAccept(() => onAcceptCallback);
+      setOnCancel(() => onCancelCallback);
     }
   }
 
@@ -88,7 +97,14 @@ export default function ConfirmModal({
               </Text>
 
               <View className="flex flex-row justify-between mt-4">
-                <Button onPress={closeModal} color="danger" size="sm">
+                <Button
+                  onPress={() => {
+                    if (onCancel) onCancel();
+                    closeModal();
+                  }}
+                  color="danger"
+                  size="sm"
+                >
                   <X size={24} color="red" />
 
                   <Text className="text-red-500 text-lg font-semibold">

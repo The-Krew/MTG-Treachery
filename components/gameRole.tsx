@@ -7,6 +7,7 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 import { CircleQuestionMark } from "lucide-react-native";
+import Header from "./ui/header";
 
 export default function GameRole({
   unveiled,
@@ -59,28 +60,26 @@ export default function GameRole({
   }, [unveiled, hiddenOpacity, revealedOpacity]);
 
   return (
-    <>
-      <View className="w-full h-20 items-center justify-center bg-zinc-600/20 rounded-2xl">
-        <View className="w-full h-6 absolute top-0  left-10 ">
-          <View className="w-20 h-20 rounded-full bg-transparent justify-center items-center">
-            <Animated.View style={[hiddenStyle, { position: "absolute" }]}>
-              <CircleQuestionMark size={60} color="#7D7D7D" />
-            </Animated.View>
-            <Animated.View style={[revealedStyle, { position: "absolute" }]}>
-              <Image source={{ uri: url }} className="w-16 h-16 rounded-full" />
-            </Animated.View>
-          </View>
+    <Header bg="light">
+      <View className="w-full h-full absolute top-0  left-10 ">
+        <View className="w-24 h-24 rounded-full bg-transparent justify-center items-center">
+          <Animated.View style={[hiddenStyle, { position: "absolute" }]}>
+            <CircleQuestionMark size={60} color="#7D7D7D" />
+          </Animated.View>
+          <Animated.View style={[revealedStyle, { position: "absolute" }]}>
+            <Image source={{ uri: url }} className="w-16 h-16 rounded-full" />
+          </Animated.View>
         </View>
-
-        <Animated.View style={[revealedStyle]}>
-          <Text className={"text-3xl font-extrabold " + classColors[role]}>
-            {roles[role]}
-          </Text>
-        </Animated.View>
-        <Animated.View style={[hiddenStyle, { position: "absolute" }]}>
-          <Text className="text-3xl font-extrabold text-stone-300">???</Text>
-        </Animated.View>
       </View>
-    </>
+
+      <Animated.View style={[revealedStyle]}>
+        <Text className={"text-3xl font-extrabold " + classColors[role]}>
+          {roles[role]}
+        </Text>
+      </Animated.View>
+      <Animated.View style={[hiddenStyle, { position: "absolute" }]}>
+        <Text className="text-3xl font-extrabold text-stone-300">???</Text>
+      </Animated.View>
+    </Header>
   );
 }

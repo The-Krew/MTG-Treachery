@@ -30,6 +30,8 @@ export default function GameControls({
   const { openModal } = useConfirmModalContext();
   const { openModal: openInfoModal } = useInfoModalContext();
 
+  const didUnveilRef = React.useRef(didUnveil);
+
   React.useEffect(() => {
     if (role === 3) {
       const req: Request = {
@@ -39,7 +41,9 @@ export default function GameControls({
       };
       wsRef.current?.send(JSON.stringify(req));
     }
-  }, [role, wsRef, code]);
+
+    didUnveilRef.current = didUnveil;
+  }, [role, wsRef, code, didUnveil]);
 
   function handleLeave() {
     openModal({
@@ -66,19 +70,20 @@ export default function GameControls({
           isFlipped.value = withTiming(isFlipped.value === 0 ? 1 : 0, {
             duration: 500,
           });
-          setUnveiled(!unveiled);
 
-          // Automatically flip back after 7 seconds if not unveiled
-          if (!unveiled) {
-            setTimeout(() => {
-              if (!unveiled) {
-                isFlipped.value = withTiming(1, { duration: 500 });
-                setUnveiled(false);
-              }
-            }, 7000);
-          }
+          setUnveiled(true);
+
+          setTimeout(hidePeek, 7000);
         },
       });
+    }
+  }
+
+  function hidePeek() {
+    if (!didUnveilRef.current) {
+      console.log("Hiding peek");
+      isFlipped.value = withTiming(1, { duration: 500 });
+      setUnveiled(false);
     }
   }
 
@@ -87,13 +92,36 @@ export default function GameControls({
       // Role is Guardian and cannot unveil unless 2 players are unveiled (Leader + 1 more)
       console.log(players);
       if (players.filter((p) => p.role !== -1).length < 2) {
-        openInfoModal({
-          title: "Cannot Unveil",
-          message:
-            "As a Guardian, you can only unveil your card when at least one more player has unveiled theirs.",
-          styleKey: "error",
+        openModal({
+          title: "Guardian Unveil Restriction",
+          message: "Did someone attack Leader?",
+          onAcceptCallback: () => {
+            const req: Request = {
+              type: "game",
+              method: "unveil",
+              body: { code: code },
+            };
+            wsRef.current?.send(JSON.stringify(req));
+            setDidUnveil(true);
+          },
+
+          onCancelCallback: () => {
+            openInfoModal({
+              title: "Unveil Cancelled",
+              message: "You need some else to unveil to use this action.",
+              styleKey: "error",
+            });
+          },
         });
         return;
+      } else {
+        const req: Request = {
+          type: "game",
+          method: "unveil",
+          body: { code: code },
+        };
+        wsRef.current?.send(JSON.stringify(req));
+        setDidUnveil(true);
       }
     }
     openModal({
@@ -114,7 +142,7 @@ export default function GameControls({
 
   return (
     <>
-      <View className="w-full h-20 items-center justify-center  flex flex-row gap-4">
+      <View className="w-full h-[5rem] items-center justify-center  flex flex-row gap-4">
         <Button color="danger" onPress={handleLeave} size="sm">
           <Text className="text-red-300">Leave </Text>
         </Button>
