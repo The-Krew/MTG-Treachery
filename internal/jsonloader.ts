@@ -40,7 +40,6 @@ export const getRandomCardIndex = (cardClass: any) => {
 
 export const getRoleInfo = (role: number) => {
   if (role < 0 || role >= roles.length) {
-    console.error(`Role index ${role} is out of bounds`);
     return null;
   }
   return {

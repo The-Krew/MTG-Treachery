@@ -27,5 +27,5 @@ export const usePlayerContext = (): PlayerContextType => {
 export function generateCode() {
   // This function would generate a unique code for the lobby
   // size is set to 6 characters
-  return Math.random().toString(36).substring(2, 8).toUpperCase();
+  return Math.random().toString(36).substring(2, 4).toUpperCase();
 }

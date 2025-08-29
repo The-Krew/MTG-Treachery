@@ -4,6 +4,20 @@ import LobbyScreen from "@/components/lobbyScreen";
 import GameScreen from "@/components/gameScreen";
 import { useInfoModalContext } from "@/components/interface/status";
 import { getRandomCardIndex, roles } from "@/internal/jsonloader";
+import { usePlayerContext } from "@/components/playerContext";
+
+function isPlayerRoleBody(
+  body: Response["body"],
+): body is { player: string; role: string } {
+  return (
+    typeof body === "object" &&
+    body !== null &&
+    "player" in body &&
+    "role" in body &&
+    typeof (body as any).player === "string" &&
+    typeof (body as any).role === "string"
+  );
+}
 
 export default function Router({
   wsRef,
@@ -13,6 +27,7 @@ export default function Router({
   // --------------------------------------------------------------------------------------
   // Context
   const { openModal } = useInfoModalContext();
+  const { setCode } = usePlayerContext();
 
   // --------------------------------------------------------------------------------------
   // State
@@ -20,7 +35,6 @@ export default function Router({
   const [players, setPlayers] = React.useState<Player[]>([]);
   const [role, setRole] = React.useState<number>(-1);
   const [card, setCard] = React.useState<number>(-1);
-  const [didUnveil, setDidUnveil] = React.useState<boolean>(false);
 
   const [gameState, setGameState] = React.useState<boolean>(false);
 
@@ -40,6 +54,7 @@ export default function Router({
                 for (const player of res.body.players) {
                   const p: Player = {
                     name: player,
+                    role: -1,
                   };
                   ps.push(p);
                 }
@@ -66,6 +81,7 @@ export default function Router({
                   message: res.message,
                   styleKey: "error",
                 });
+                setCode("");
               }
             }
             if (res.method === "leave") {
@@ -112,6 +128,47 @@ export default function Router({
                 setGameState(false);
                 setRole(-1);
                 setCard(-1);
+                players.forEach((p) => (p.role = -1));
+              }
+            }
+            if (res.method === "unveil") {
+              if (res.message) {
+                openModal({
+                  title: "Error",
+                  message: res.message,
+                  styleKey: "error",
+                });
+              } else {
+                console.log("Unveil body:", res.body);
+                if (res.body && isPlayerRoleBody(res.body)) {
+                  const classIndexing = ["G", "A", "T", "L"];
+                  const index = classIndexing.indexOf(res.body.role);
+                  if (index !== -1) {
+                    const playerIndex = players.findIndex(
+                      (p) => p.name === res.body.player,
+                    );
+                    if (playerIndex !== -1) {
+                      const updatedPlayers = [...players];
+                      updatedPlayers[playerIndex].role = index;
+                      setPlayers(updatedPlayers);
+                    }
+                  } else {
+                    console.warn("Unknown role:", res.body.role);
+                  }
+                }
+              }
+            }
+            if (res.method === "lobby") {
+              if (res.message) {
+                openModal({
+                  title: "Error",
+                  message: res.message,
+                  styleKey: "error",
+                });
+              } else {
+                setGameState(false);
+                setRole(-1);
+                setCard(-1);
               }
             }
             return;
@@ -121,11 +178,13 @@ export default function Router({
         }
       };
     }
-  }, [wsRef, openModal]);
+  }, [wsRef, openModal, players, setCode]);
 
   if (!gameState) {
     return <LobbyScreen wsRef={wsRef} players={players} />;
   } else {
-    return <GameScreen wsRef={wsRef} role={role} card={card} />;
+    return (
+      <GameScreen wsRef={wsRef} role={role} card={card} players={players} />
+    );
   }
 }

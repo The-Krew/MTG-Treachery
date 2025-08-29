@@ -86,7 +86,7 @@ type Response = {
 // Player structure used in the "info" response body
 export type Player = {
   name: string;
-  role?: string;
+  role: number;
   alive?: boolean;
 };
 
