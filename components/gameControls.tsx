@@ -1,7 +1,7 @@
 import React from "react";
 import { View, Text } from "react-native";
 import { Button } from "./ui/button";
-import { Player, Request } from "@/internal/types";
+import { Request } from "@/internal/types";
 import { usePlayerContext } from "@/components/playerContext";
 import { useConfirmModalContext } from "./interface/confirm";
 import { withTiming } from "react-native-reanimated";
@@ -9,41 +9,26 @@ import { useInfoModalContext } from "./interface/status";
 
 export default function GameControls({
   wsRef,
-  role,
   isFlipped,
-  unveiled,
-  players,
-  setUnveiled,
-  didUnveil,
-  setDidUnveil,
 }: {
   wsRef: React.MutableRefObject<WebSocket | null>;
-  role: number;
   isFlipped: any;
-  unveiled: boolean;
-  players: Player[];
-  setUnveiled: React.Dispatch<React.SetStateAction<boolean>>;
-  didUnveil: boolean;
-  setDidUnveil: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
-  const { code } = usePlayerContext();
+  const { code, setUnveiled, unveiled, players, card } = usePlayerContext();
   const { openModal } = useConfirmModalContext();
   const { openModal: openInfoModal } = useInfoModalContext();
 
-  const didUnveilRef = React.useRef(didUnveil);
-
   React.useEffect(() => {
-    if (role === 3) {
+    if (card.rolename === "Leader") {
       const req: Request = {
         type: "game",
         method: "unveil",
         body: { code: code },
       };
       wsRef.current?.send(JSON.stringify(req));
+      setUnveiled(true);
     }
-
-    didUnveilRef.current = didUnveil;
-  }, [role, wsRef, code, didUnveil]);
+  }, []);
 
   function handleLeave() {
     openModal({
@@ -70,9 +55,6 @@ export default function GameControls({
           isFlipped.value = withTiming(isFlipped.value === 0 ? 1 : 0, {
             duration: 500,
           });
-
-          setUnveiled(true);
-
           setTimeout(hidePeek, 7000);
         },
       });
@@ -80,18 +62,15 @@ export default function GameControls({
   }
 
   function hidePeek() {
-    if (!didUnveilRef.current) {
-      console.log("Hiding peek");
+    if (!unveiled) {
       isFlipped.value = withTiming(1, { duration: 500 });
-      setUnveiled(false);
     }
   }
 
   function handleUnveil() {
-    if (role === 0) {
+    if (card.rolename === "Guardian") {
       // Role is Guardian and cannot unveil unless 2 players are unveiled (Leader + 1 more)
-      console.log(players);
-      if (players.filter((p) => p.role !== -1).length < 2) {
+      if (players.filter((p) => p.role !== "").length < 2) {
         openModal({
           title: "Guardian Unveil Restriction",
           message: "Did someone attack Leader?",
@@ -102,7 +81,7 @@ export default function GameControls({
               body: { code: code },
             };
             wsRef.current?.send(JSON.stringify(req));
-            setDidUnveil(true);
+            setUnveiled(true);
           },
 
           onCancelCallback: () => {
@@ -121,7 +100,7 @@ export default function GameControls({
           body: { code: code },
         };
         wsRef.current?.send(JSON.stringify(req));
-        setDidUnveil(true);
+        setUnveiled(true);
       }
     }
     openModal({
@@ -135,7 +114,7 @@ export default function GameControls({
           body: { code: code },
         };
         wsRef.current?.send(JSON.stringify(req));
-        setDidUnveil(true);
+        setUnveiled(true);
       },
     });
   }
@@ -148,15 +127,23 @@ export default function GameControls({
         </Button>
 
         <Button
-          color={role !== 3 && !unveiled ? "primary" : "disabled"}
-          onPress={role !== 3 && !unveiled ? handlePeek : () => {}}
+          color={
+            card.rolename !== "Leader" && !unveiled ? "primary" : "disabled"
+          }
+          onPress={
+            card.rolename !== "Leader" && !unveiled ? handlePeek : () => {}
+          }
           size="sm"
         >
           <Text className="text-blue-300">Peek </Text>
         </Button>
         <Button
-          color={role !== 3 && !didUnveil ? "active" : "disabled"}
-          onPress={role !== 3 && !didUnveil ? handleUnveil : () => {}}
+          color={
+            card.rolename !== "Leader" && !unveiled ? "active" : "disabled"
+          }
+          onPress={
+            card.rolename !== "Leader" && !unveiled ? handleUnveil : () => {}
+          }
           size="sm"
         >
           <Text className="text-purple-300">Unveil </Text>

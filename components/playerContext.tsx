@@ -1,15 +1,22 @@
 // This is context file for player
 
+import { Card, Player } from "@/internal/types";
 import { createContext, useContext } from "react";
 
 export interface PlayerContextType {
   idRef?: React.MutableRefObject<string | undefined>;
   code: string;
-  cardClass: number;
-  card: number;
-  setClass: (classIndex: number) => void;
-  setCard: (cardIndex: number) => void;
+  role: string;
+  card: Card;
+  players: Player[];
+  gameState: boolean;
+  unveiled: boolean;
+  setRole: (classIndex: string) => void;
+  setCard: (cardIndex: Card) => void;
   setCode: (code: string) => void;
+  setPlayers: (players: Player[]) => void;
+  setGameState: (state: boolean) => void;
+  setUnveiled: (unveiled: boolean) => void;
 }
 
 export const PlayerContext = createContext<PlayerContextType | undefined>(

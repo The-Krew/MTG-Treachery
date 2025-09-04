@@ -20,6 +20,7 @@ export default function LobbyDetails({
   // --------------------------------------------------------------------------------------
   // States
   const { code, setCode } = usePlayerContext();
+  console.log("LobbyDetails rerender", { code });
   const { openModal } = useInfoModalContext();
 
   // --------------------------------------------------------------------------------------

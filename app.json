@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "MTG-treachery",
-    "slug": "MTG-treachery",
+    "slug": "mtg-treachery",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -16,7 +16,8 @@
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "package": "com.kopytkg.mtgtreachery"
     },
     "web": {
       "bundler": "metro",
@@ -37,6 +38,13 @@
     ],
     "experiments": {
       "typedRoutes": true
-    }
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "2466d8e6-0347-47e5-951b-bb7d360fc8be"
+      }
+    },
+    "owner": "kopytkg"
   }
 }

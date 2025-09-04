@@ -14,7 +14,7 @@
  */
 
 type Request = {
-  type: "lobby" | "info" | "game";
+  type: "lobby" | "info" | "game" | "ping";
   method:
     | "create"
     | "join"
@@ -23,8 +23,13 @@ type Request = {
     | "start"
     | "stop"
     | "unveil"
-    | "lobby";
-  body: { code: string } | { code: string; player: string; role: string };
+    | "lobby"
+    | "heartbeat"
+    | "state";
+  body:
+    | { code: string }
+    | { code: string; player: string; role: string }
+    | { code: string; rarity: string };
 };
 
 /*
@@ -58,7 +63,7 @@ type Request = {
  */
 
 type Response = {
-  type: "lobby" | "info" | "game";
+  type: "lobby" | "info" | "game" | "pong";
   method:
     | "create"
     | "join"
@@ -67,27 +72,64 @@ type Response = {
     | "start"
     | "stop"
     | "unveil"
-    | "lobby";
+    | "lobby"
+    | "heaertbeat"
+    | "state";
   message?: string;
-  body:
-    | { code: string }
-    | { code: string; players: string[] }
-    | {
-        code: string;
-        running: boolean;
-        role: string;
-        card?: string;
-        live?: boolean;
-      }
-    | { player: string; role: string }
-    | { code: string; role: string };
+  body: LobbyBody | InfoBody | StartGameBody | StopGameBody | UnveilBody | {};
+};
+
+// Bodies for specific responses
+export type LobbyBody = { code: string };
+export type InfoPreParsed = { code: string; players: string[] };
+export type InfoBody = { code: string; players: Player[] };
+export type StartGameBody = {
+  code: string;
+  running: boolean;
+  role: string;
+  card: Card;
+};
+export type StopGameBody = { code: string; running: boolean; role: string };
+export type UnveilBody = { player: Player; role: string };
+
+export type StateBody = {
+  code: string;
+  running: boolean;
+  role: string;
+  card: Card;
+  players: string[];
+  unveiled: boolean;
 };
 
 // Player structure used in the "info" response body
 export type Player = {
   name: string;
-  role: number;
+  role: string;
   alive?: boolean;
+};
+
+export type Card = {
+  id: number;
+  name: string;
+  roleid: number;
+  rolename: string;
+  rarity: string;
+  text: string;
+  rulings: string[];
+  url: string;
+  role_url: string;
+};
+
+export const DefaultCard: Card = {
+  id: -1,
+  name: "",
+  text: "",
+  rulings: [],
+  roleid: -1,
+  rolename: "",
+  rarity: "",
+  url: "",
+  role_url: "",
 };
 
 export { Request, Response };

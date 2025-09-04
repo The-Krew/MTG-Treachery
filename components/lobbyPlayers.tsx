@@ -4,10 +4,10 @@ import { usePlayerContext } from "@/components/playerContext";
 import { CircleQuestionMark, UsersRound } from "lucide-react-native";
 import { Player } from "@/internal/types";
 
-export default function LobbyPlayers({ players }: { players: Player[] }) {
+export default function LobbyPlayers() {
   // --------------------------------------------------------------------------------------
   // Context
-  const { idRef } = usePlayerContext();
+  const { idRef, players } = usePlayerContext();
   return (
     <>
       <View className="w-full h-2/6  px-6 bg-zinc-600/20 rounded-2xl">

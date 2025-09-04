@@ -1,23 +1,17 @@
 import React from "react";
-import { Response, Player } from "@/internal/types";
+import {
+  Response,
+  Player,
+  DefaultCard,
+  StartGameBody,
+  UnveilBody,
+  InfoPreParsed,
+  StateBody,
+} from "@/internal/types";
 import LobbyScreen from "@/components/lobbyScreen";
 import GameScreen from "@/components/gameScreen";
 import { useInfoModalContext } from "@/components/interface/status";
-import { getRandomCardIndex, roles } from "@/internal/jsonloader";
 import { usePlayerContext } from "@/components/playerContext";
-
-function isPlayerRoleBody(
-  body: Response["body"],
-): body is { player: string; role: string } {
-  return (
-    typeof body === "object" &&
-    body !== null &&
-    "player" in body &&
-    "role" in body &&
-    typeof (body as any).player === "string" &&
-    typeof (body as any).role === "string"
-  );
-}
 
 export default function Router({
   wsRef,
@@ -27,16 +21,20 @@ export default function Router({
   // --------------------------------------------------------------------------------------
   // Context
   const { openModal } = useInfoModalContext();
-  const { setCode } = usePlayerContext();
+  const {
+    setCode,
+    setRole,
+    setCard,
+    setPlayers,
+    players,
+    gameState,
+    setGameState,
+    setUnveiled,
+    idRef,
+  } = usePlayerContext();
 
   // --------------------------------------------------------------------------------------
   // State
-
-  const [players, setPlayers] = React.useState<Player[]>([]);
-  const [role, setRole] = React.useState<number>(-1);
-  const [card, setCard] = React.useState<number>(-1);
-
-  const [gameState, setGameState] = React.useState<boolean>(false);
 
   React.useEffect(() => {
     if (wsRef.current) {
@@ -49,18 +47,38 @@ export default function Router({
           // INFO command
           if (res.type === "info") {
             if (res.method === "info" && res.body) {
-              if ("players" in res.body && Array.isArray(res.body.players)) {
-                const ps: Player[] = [];
-                for (const player of res.body.players) {
-                  const p: Player = {
-                    name: player,
-                    role: -1,
-                  };
-                  ps.push(p);
-                }
-                setPlayers(ps);
-              }
+              /*
+               * -------------------------------
+               * Info command for players
+               * -------------------------------
+               */
+              const pBody: InfoPreParsed = res.body as InfoPreParsed;
+              const pparsedList: Player[] = [];
+              pBody.players.forEach((p: string) => {
+                const pparsed = JSON.parse(p) as Player;
+                pparsedList.push(pparsed);
+              });
+              setPlayers(pparsedList);
               return;
+            } else if (res.method === "state" && res.body) {
+              /*
+               * -------------------------------
+               * State command for reconnecting to grab all player info
+               * -------------------------------
+               */
+              const stBody: StateBody = res.body as StateBody;
+              console.log("StateBody router:", stBody);
+              setCode(stBody.code);
+              setGameState(stBody.running);
+              setRole(stBody.role);
+              setCard(stBody.card);
+
+              const pparsedList: Player[] = [];
+              stBody.players.forEach((p: string) => {
+                const pparsed = JSON.parse(p) as Player;
+                pparsedList.push(pparsed);
+              });
+              setPlayers(pparsedList);
             }
           }
           // LOBBY command
@@ -110,10 +128,20 @@ export default function Router({
               } else {
                 setGameState(true);
                 if (res.body && "role" in res.body) {
-                  const classIndexing = ["G", "A", "T", "L"];
-                  const index = classIndexing.indexOf(res.body.role);
-                  setRole(index);
-                  setCard(getRandomCardIndex(roles[index]));
+                  const gBody: StartGameBody = res.body as StartGameBody;
+                  setRole(gBody.card.rolename);
+                  setCard(gBody.card);
+                  if (gBody.card.rolename === "Leader") {
+                    setUnveiled(true);
+                    const ps: Player[] = [...players];
+                    const index = ps.findIndex(
+                      (p: Player) => p.name === idRef?.current,
+                    );
+                    if (index !== -1) {
+                      ps[index].role = gBody.card.rolename;
+                    }
+                    setPlayers(ps);
+                  }
                 }
               }
             }
@@ -126,9 +154,14 @@ export default function Router({
                 });
               } else {
                 setGameState(false);
-                setRole(-1);
-                setCard(-1);
-                players.forEach((p) => (p.role = -1));
+                setRole("");
+                setCard(DefaultCard);
+                setUnveiled(false);
+                const ps: Player[] = [...players];
+                ps.forEach((p: Player) => {
+                  p.role = "";
+                });
+                setPlayers(ps);
               }
             }
             if (res.method === "unveil") {
@@ -139,22 +172,36 @@ export default function Router({
                   styleKey: "error",
                 });
               } else {
-                console.log("Unveil body:", res.body);
-                if (res.body && isPlayerRoleBody(res.body)) {
-                  const classIndexing = ["G", "A", "T", "L"];
-                  const index = classIndexing.indexOf(res.body.role);
-                  if (index !== -1) {
-                    const playerIndex = players.findIndex(
-                      (p) => p.name === res.body.player,
-                    );
-                    if (playerIndex !== -1) {
-                      const updatedPlayers = [...players];
-                      updatedPlayers[playerIndex].role = index;
-                      setPlayers(updatedPlayers);
-                    }
-                  } else {
-                    console.warn("Unknown role:", res.body.role);
+                if (res.body) {
+                  console.log("Unveil body:", res.body);
+                  const uBody: UnveilBody = res.body as UnveilBody;
+                  const parsedPlayer = JSON.parse(uBody.player as any);
+
+                  let roleString = "";
+                  switch (parsedPlayer.role) {
+                    case "L":
+                      roleString = "Leader";
+                      break;
+                    case "G":
+                      roleString = "Guardian";
+                      break;
+                    case "A":
+                      roleString = "Assassin";
+                      break;
+                    case "T":
+                      roleString = "Traitor";
+                      break;
                   }
+
+                  const ps: Player[] = [...players];
+                  const index = ps.findIndex(
+                    (p: Player) => p.name === parsedPlayer.name,
+                  );
+                  if (index !== -1) {
+                    ps[index].role = roleString;
+                  }
+
+                  setPlayers(ps);
                 }
               }
             }
@@ -167,8 +214,9 @@ export default function Router({
                 });
               } else {
                 setGameState(false);
-                setRole(-1);
-                setCard(-1);
+                setUnveiled(false);
+                setRole("");
+                setCard(DefaultCard);
               }
             }
             return;
@@ -178,13 +226,23 @@ export default function Router({
         }
       };
     }
-  }, [wsRef, openModal, players, setCode]);
-
+  }, [
+    wsRef,
+    openModal,
+    players,
+    setCode,
+    setRole,
+    setCard,
+    setPlayers,
+    setGameState,
+    setUnveiled,
+    idRef,
+  ]);
+  // --------------------------------------------------------------------------------------
+  // Render
   if (!gameState) {
-    return <LobbyScreen wsRef={wsRef} players={players} />;
+    return <LobbyScreen wsRef={wsRef} />;
   } else {
-    return (
-      <GameScreen wsRef={wsRef} role={role} card={card} players={players} />
-    );
+    return <GameScreen wsRef={wsRef} />;
   }
 }

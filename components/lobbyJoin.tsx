@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { useInfoModalContext } from "@/components/interface/status";
 import { Request } from "@/internal/types";
 
-export default function JoinLobby({
+export default function LobbyJoin({
   wsRef,
 }: {
   wsRef: React.MutableRefObject<WebSocket | null>;

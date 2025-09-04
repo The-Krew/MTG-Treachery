@@ -1,6 +1,5 @@
 import React from "react";
 import { Image, Text, View } from "react-native";
-import { getRoleInfo, roles } from "@/internal/jsonloader";
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -8,14 +7,9 @@ import Animated, {
 } from "react-native-reanimated";
 import { CircleQuestionMark } from "lucide-react-native";
 import Header from "./ui/header";
+import { usePlayerContext } from "./playerContext";
 
-export default function GameRole({
-  unveiled,
-  role,
-}: {
-  unveiled: boolean;
-  role: number;
-}) {
+export default function GameRole() {
   const classColors = [
     "text-blue-500",
     "text-red-500",
@@ -23,12 +17,12 @@ export default function GameRole({
     "text-yellow-500",
   ];
 
+  const { card, unveiled } = usePlayerContext();
+
   const hiddenOpacity = useSharedValue(unveiled ? 0 : 1);
   const revealedOpacity = useSharedValue(unveiled ? 1 : 0);
 
   const duration = 400;
-
-  const url = getRoleInfo(role)?.img_src || "";
 
   const hiddenStyle = useAnimatedStyle(() => ({
     opacity: hiddenOpacity.value,
@@ -41,8 +35,8 @@ export default function GameRole({
   }));
 
   React.useEffect(() => {
-    if (role === -1) return;
-    if (role === 3) {
+    if (card.rolename === "") return;
+    if (card.rolename === "Leader") {
       // Leader is always shown
       hiddenOpacity.value = 0;
       revealedOpacity.value = 1;
@@ -57,7 +51,7 @@ export default function GameRole({
       revealedOpacity.value = withTiming(0, { duration: duration });
     }
     console.log("Role unveiled:", unveiled);
-  }, [unveiled, hiddenOpacity, revealedOpacity]);
+  }, [unveiled, hiddenOpacity, revealedOpacity, card]);
 
   return (
     <Header bg="light">
@@ -67,14 +61,17 @@ export default function GameRole({
             <CircleQuestionMark size={60} color="#7D7D7D" />
           </Animated.View>
           <Animated.View style={[revealedStyle, { position: "absolute" }]}>
-            <Image source={{ uri: url }} className="w-16 h-16 rounded-full" />
+            <Image
+              source={{ uri: card.role_url }}
+              className="w-16 h-16 rounded-full"
+            />
           </Animated.View>
         </View>
       </View>
 
       <Animated.View style={[revealedStyle]}>
-        <Text className={"text-3xl font-extrabold " + classColors[role]}>
-          {roles[role]}
+        <Text className={"text-3xl font-extrabold " + classColors[card.roleid]}>
+          {card.rolename}
         </Text>
       </Animated.View>
       <Animated.View style={[hiddenStyle, { position: "absolute" }]}>

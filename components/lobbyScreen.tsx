@@ -2,26 +2,24 @@ import React from "react";
 import { View, Text } from "react-native";
 import { Play, LogOut } from "lucide-react-native";
 import { usePlayerContext } from "@/components/playerContext";
-import JoinLobby from "@/components/joinLobby";
 import LobbyDetails from "@/components/lobbyDetails";
 import LobbyPlayers from "@/components/lobbyPlayers";
 import { useConfirmModalContext } from "@/components/interface/confirm";
 import { Button } from "@/components/ui/button";
 import { useInfoModalContext } from "@/components/interface/status";
-import { Player, Request } from "@/internal/types";
+import { Request } from "@/internal/types";
 import Container from "./ui/container";
 import Header from "./ui/header";
+import LobbyJoin from "@/components/lobbyJoin";
 
 export default function LobbyScreen({
   wsRef,
-  players,
 }: {
   wsRef: React.MutableRefObject<WebSocket | null>;
-  players: Player[];
 }) {
   // --------------------------------------------------------------------------------------
   // Context
-  const { code, setCode } = usePlayerContext();
+  const { code, setCode, idRef } = usePlayerContext();
   const { openModal } = useConfirmModalContext();
   const { openModal: openInfoModal } = useInfoModalContext();
 
@@ -56,7 +54,7 @@ export default function LobbyScreen({
       const req: Request = {
         type: "game",
         method: "start",
-        body: { code: code },
+        body: { code: code, rarity: "any" },
       };
       wsRef.current?.send(JSON.stringify(req));
     } else {
@@ -71,12 +69,12 @@ export default function LobbyScreen({
   return (
     <Container>
       <Header>
-        <Text className="text-white text-3xl font-bold">Lobby managment </Text>
+        <Text className="text-white text-3xl font-bold">Lobby managment</Text>
       </Header>
 
       <LobbyDetails wsRef={wsRef} />
-      <JoinLobby wsRef={wsRef} />
-      <LobbyPlayers players={players} />
+      <LobbyJoin wsRef={wsRef} />
+      <LobbyPlayers />
 
       <View className="w-full h-28 items-center justify-center flex flex-row gap-10">
         <Button size="md" color="danger" onPress={handleLeaveLobby}>

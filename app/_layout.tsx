@@ -7,22 +7,32 @@ import ConfirmModal from "@/components/interface/confirm";
 import InfoModal from "@/components/interface/status";
 import WebSocketWrapper from "@/app/index";
 import { StatusBar } from "react-native";
+import { Card, DefaultCard, Player } from "@/internal/types";
 
 export default function Layout() {
   // Context setup for player
-  const [cardClass, setCardClass] = React.useState(-1);
-  const [card, setCard] = React.useState(-1);
+  const [role, setRole] = React.useState("");
+  const [card, setCard] = React.useState<Card>(DefaultCard);
   const [code, setCode] = React.useState("");
+  const [players, setPlayers] = React.useState<Player[]>([]);
+  const [gameState, setGameState] = React.useState<boolean>(false);
+  const [unveiled, setUnveiled] = React.useState<boolean>(false);
   const idRef = React.useRef<string>(generateCode());
 
   const playerContextValue = {
-    cardClass: cardClass,
+    role,
     card,
-    setClass: setCardClass,
+    players,
+    gameState,
+    setRole,
     setCard,
+    setPlayers,
+    setGameState,
     code,
     setCode,
-    idRef: idRef,
+    idRef,
+    unveiled,
+    setUnveiled,
   };
 
   console.log("Player Context Value:", playerContextValue);
