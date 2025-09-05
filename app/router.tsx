@@ -6,7 +6,6 @@ import {
   StartGameBody,
   UnveilBody,
   InfoPreParsed,
-  StateBody,
 } from "@/internal/types";
 import LobbyScreen from "@/components/lobbyScreen";
 import GameScreen from "@/components/gameScreen";
@@ -21,20 +20,14 @@ export default function Router({
   // --------------------------------------------------------------------------------------
   // Context
   const { openModal } = useInfoModalContext();
-  const {
-    setCode,
-    setRole,
-    setCard,
-    setPlayers,
-    players,
-    gameState,
-    setGameState,
-    setUnveiled,
-    idRef,
-  } = usePlayerContext();
+  const { setCode, setRole, setCard } = usePlayerContext();
 
   // --------------------------------------------------------------------------------------
   // State
+
+  const [players, setPlayers] = React.useState<Player[]>([]);
+
+  const [gameState, setGameState] = React.useState<boolean>(false);
 
   React.useEffect(() => {
     if (wsRef.current) {
@@ -47,38 +40,13 @@ export default function Router({
           // INFO command
           if (res.type === "info") {
             if (res.method === "info" && res.body) {
-              /*
-               * -------------------------------
-               * Info command for players
-               * -------------------------------
-               */
               const pBody: InfoPreParsed = res.body as InfoPreParsed;
-              const pparsedList: Player[] = [];
-              pBody.players.forEach((p: string) => {
-                const pparsed = JSON.parse(p) as Player;
-                pparsedList.push(pparsed);
-              });
-              setPlayers(pparsedList);
+              const ps: Player[] = [];
+              for (const p of pBody.players) {
+                ps.push({ name: p, role: "" });
+              }
+              setPlayers(ps);
               return;
-            } else if (res.method === "state" && res.body) {
-              /*
-               * -------------------------------
-               * State command for reconnecting to grab all player info
-               * -------------------------------
-               */
-              const stBody: StateBody = res.body as StateBody;
-              console.log("StateBody router:", stBody);
-              setCode(stBody.code);
-              setGameState(stBody.running);
-              setRole(stBody.role);
-              setCard(stBody.card);
-
-              const pparsedList: Player[] = [];
-              stBody.players.forEach((p: string) => {
-                const pparsed = JSON.parse(p) as Player;
-                pparsedList.push(pparsed);
-              });
-              setPlayers(pparsedList);
             }
           }
           // LOBBY command
@@ -131,17 +99,6 @@ export default function Router({
                   const gBody: StartGameBody = res.body as StartGameBody;
                   setRole(gBody.card.rolename);
                   setCard(gBody.card);
-                  if (gBody.card.rolename === "Leader") {
-                    setUnveiled(true);
-                    const ps: Player[] = [...players];
-                    const index = ps.findIndex(
-                      (p: Player) => p.name === idRef?.current,
-                    );
-                    if (index !== -1) {
-                      ps[index].role = gBody.card.rolename;
-                    }
-                    setPlayers(ps);
-                  }
                 }
               }
             }
@@ -156,12 +113,7 @@ export default function Router({
                 setGameState(false);
                 setRole("");
                 setCard(DefaultCard);
-                setUnveiled(false);
-                const ps: Player[] = [...players];
-                ps.forEach((p: Player) => {
-                  p.role = "";
-                });
-                setPlayers(ps);
+                players.forEach((p) => (p.role = ""));
               }
             }
             if (res.method === "unveil") {
@@ -173,35 +125,14 @@ export default function Router({
                 });
               } else {
                 if (res.body) {
-                  console.log("Unveil body:", res.body);
                   const uBody: UnveilBody = res.body as UnveilBody;
-                  const parsedPlayer = JSON.parse(uBody.player as any);
-
-                  let roleString = "";
-                  switch (parsedPlayer.role) {
-                    case "L":
-                      roleString = "Leader";
-                      break;
-                    case "G":
-                      roleString = "Guardian";
-                      break;
-                    case "A":
-                      roleString = "Assassin";
-                      break;
-                    case "T":
-                      roleString = "Traitor";
-                      break;
-                  }
-
-                  const ps: Player[] = [...players];
-                  const index = ps.findIndex(
-                    (p: Player) => p.name === parsedPlayer.name,
+                  setPlayers((prevPlayers) =>
+                    prevPlayers.map((p) =>
+                      p.name === uBody.player.name
+                        ? { ...p, role: uBody.player.role }
+                        : p,
+                    ),
                   );
-                  if (index !== -1) {
-                    ps[index].role = roleString;
-                  }
-
-                  setPlayers(ps);
                 }
               }
             }
@@ -214,7 +145,6 @@ export default function Router({
                 });
               } else {
                 setGameState(false);
-                setUnveiled(false);
                 setRole("");
                 setCard(DefaultCard);
               }
@@ -226,23 +156,12 @@ export default function Router({
         }
       };
     }
-  }, [
-    wsRef,
-    openModal,
-    players,
-    setCode,
-    setRole,
-    setCard,
-    setPlayers,
-    setGameState,
-    setUnveiled,
-    idRef,
-  ]);
+  }, [wsRef, openModal, players, setCode, setRole, setCard]);
   // --------------------------------------------------------------------------------------
   // Render
   if (!gameState) {
-    return <LobbyScreen wsRef={wsRef} />;
+    return <LobbyScreen wsRef={wsRef} players={players} />;
   } else {
-    return <GameScreen wsRef={wsRef} />;
+    return <GameScreen wsRef={wsRef} players={players} />;
   }
 }
