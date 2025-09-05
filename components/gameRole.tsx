@@ -13,8 +13,8 @@ export default function GameRole() {
   const classColors = [
     "text-blue-500",
     "text-red-500",
-    "text-red-500",
     "text-yellow-500",
+    "text-red-500",
   ];
 
   const { card, unveiled } = usePlayerContext();
@@ -50,7 +50,6 @@ export default function GameRole() {
       hiddenOpacity.value = withTiming(1, { duration: duration });
       revealedOpacity.value = withTiming(0, { duration: duration });
     }
-    console.log("Role unveiled:", unveiled);
   }, [unveiled, hiddenOpacity, revealedOpacity, card]);
 
   return (
@@ -70,7 +69,9 @@ export default function GameRole() {
       </View>
 
       <Animated.View style={[revealedStyle]}>
-        <Text className={"text-3xl font-extrabold " + classColors[card.roleid]}>
+        <Text
+          className={"text-3xl font-extrabold " + classColors[card.roleid - 1]}
+        >
           {card.rolename}
         </Text>
       </Animated.View>

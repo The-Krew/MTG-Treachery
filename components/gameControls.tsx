@@ -18,6 +18,8 @@ export default function GameControls({
   const { openModal } = useConfirmModalContext();
   const { openModal: openInfoModal } = useInfoModalContext();
 
+  const [peeked, setPeeked] = React.useState(false);
+
   React.useEffect(() => {
     if (card.rolename === "Leader") {
       const req: Request = {
@@ -52,9 +54,10 @@ export default function GameControls({
         title: "Peek Card",
         message: "Your card will be shown for 7 seconds. Cover your screen.",
         onAcceptCallback: () => {
-          isFlipped.value = withTiming(isFlipped.value === 0 ? 1 : 0, {
+          isFlipped.value = withTiming(0, {
             duration: 500,
           });
+          setPeeked(true);
           setTimeout(hidePeek, 7000);
         },
       });
@@ -64,6 +67,7 @@ export default function GameControls({
   function hidePeek() {
     if (!unveiled) {
       isFlipped.value = withTiming(1, { duration: 500 });
+      setPeeked(false);
     }
   }
 
@@ -103,6 +107,7 @@ export default function GameControls({
         setUnveiled(true);
       }
     }
+    // Normal unveil process
     openModal({
       title: "Unveil Card",
       message:
@@ -115,9 +120,12 @@ export default function GameControls({
         };
         wsRef.current?.send(JSON.stringify(req));
         setUnveiled(true);
+        isFlipped.value = withTiming(0, { duration: 500 });
       },
     });
   }
+
+  const disableCheck = card.rolename === "Leader" || unveiled || peeked;
 
   return (
     <>
@@ -127,23 +135,15 @@ export default function GameControls({
         </Button>
 
         <Button
-          color={
-            card.rolename !== "Leader" && !unveiled ? "primary" : "disabled"
-          }
-          onPress={
-            card.rolename !== "Leader" && !unveiled ? handlePeek : () => {}
-          }
+          color={!disableCheck ? "primary" : "disabled"}
+          onPress={!disableCheck ? handlePeek : () => {}}
           size="sm"
         >
           <Text className="text-blue-300">Peek </Text>
         </Button>
         <Button
-          color={
-            card.rolename !== "Leader" && !unveiled ? "active" : "disabled"
-          }
-          onPress={
-            card.rolename !== "Leader" && !unveiled ? handleUnveil : () => {}
-          }
+          color={!disableCheck ? "active" : "disabled"}
+          onPress={!disableCheck ? handleUnveil : () => {}}
           size="sm"
         >
           <Text className="text-purple-300">Unveil </Text>

@@ -8,6 +8,10 @@ const roleImages: { [key: string]: string } = {
   Traitor: "https://mtgtreachery.net/images/icon-trt.png",
   Leader: "https://mtgtreachery.net/images/icon-ldr.png",
   Assassin: "https://mtgtreachery.net/images/icon-ass.png",
+  G: "https://mtgtreachery.net/images/icon-gdn.png",
+  T: "https://mtgtreachery.net/images/icon-trt.png",
+  L: "https://mtgtreachery.net/images/icon-ldr.png",
+  A: "https://mtgtreachery.net/images/icon-ass.png",
 };
 
 export default function GameRoleTracker() {

@@ -8,6 +8,7 @@ import InfoModal from "@/components/interface/status";
 import WebSocketWrapper from "@/app/index";
 import { StatusBar } from "react-native";
 import { Card, DefaultCard, Player } from "@/internal/types";
+import RarityModal from "@/components/interface/rarity";
 
 export default function Layout() {
   // Context setup for player
@@ -41,12 +42,14 @@ export default function Layout() {
     <PlayerContext.Provider value={playerContextValue}>
       <ConfirmModal>
         <InfoModal>
-          <GestureHandlerRootView style={{ flex: 1 }}>
-            <ThemeProvider value={DarkTheme}>
-              <StatusBar hidden={true} />
-              <WebSocketWrapper />
-            </ThemeProvider>
-          </GestureHandlerRootView>
+          <RarityModal>
+            <GestureHandlerRootView style={{ flex: 1 }}>
+              <ThemeProvider value={DarkTheme}>
+                <StatusBar hidden={true} />
+                <WebSocketWrapper />
+              </ThemeProvider>
+            </GestureHandlerRootView>
+          </RarityModal>
         </InfoModal>
       </ConfirmModal>
     </PlayerContext.Provider>

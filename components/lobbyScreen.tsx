@@ -11,6 +11,7 @@ import { Request } from "@/internal/types";
 import Container from "./ui/container";
 import Header from "./ui/header";
 import LobbyJoin from "@/components/lobbyJoin";
+import { useRarityModalContext } from "./interface/rarity";
 
 export default function LobbyScreen({
   wsRef,
@@ -22,7 +23,7 @@ export default function LobbyScreen({
   const { code, setCode, idRef } = usePlayerContext();
   const { openModal } = useConfirmModalContext();
   const { openModal: openInfoModal } = useInfoModalContext();
-
+  const { openModal: openRarityModal } = useRarityModalContext();
   // --------------------------------------------------------------------------------------
   // handlers
   function handleLeaveLobby() {
@@ -51,12 +52,22 @@ export default function LobbyScreen({
 
   function handleStartGame() {
     if (code !== "") {
-      const req: Request = {
-        type: "game",
-        method: "start",
-        body: { code: code, rarity: "any" },
-      };
-      wsRef.current?.send(JSON.stringify(req));
+      openRarityModal({
+        title: "Select Rarity",
+        message: "Select the rarity of the cards to be used in this game.",
+        onAllCallback: () => {
+          sendStartGame("any");
+        },
+        onUncommonCallback: () => {
+          sendStartGame("U");
+        },
+        onRareCallback: () => {
+          sendStartGame("R");
+        },
+        onMythicCallback: () => {
+          sendStartGame("M");
+        },
+      });
     } else {
       openInfoModal({
         title: "Error",
@@ -64,6 +75,15 @@ export default function LobbyScreen({
         styleKey: "error",
       });
     }
+  }
+
+  function sendStartGame(rarity: string) {
+    const req: Request = {
+      type: "game",
+      method: "start",
+      body: { code: code, rarity: rarity },
+    };
+    wsRef.current?.send(JSON.stringify(req));
   }
 
   return (

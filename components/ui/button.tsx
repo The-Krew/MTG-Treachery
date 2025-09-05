@@ -18,6 +18,11 @@ const buttonClasses = cva(
         active:
           "bg-purple-500/10 border-purple-300/50 active:bg-purple-500/20 active:border-purple-400/50",
         disabled: "bg-gray-800/20 border-transparent text-gray-300",
+        uncommon:
+          "bg-stone-400/20 border-transparent active:bg-stone-200/30 active:border-stone-200",
+        rare: "bg-yellow-600/20 border-transparent active:bg-yellow-500/30 active:border-yellow-400",
+        mythic:
+          "bg-orange-700/20 border-transparent active:bg-orange-600/30 active:border-orange-400",
       },
       size: {
         tiny: "w-12 h-12",
@@ -51,7 +56,16 @@ export function Button({
   children,
   onPress,
 }: {
-  color?: "primary" | "danger" | "success" | "ghost" | "active" | "disabled";
+  color?:
+    | "primary"
+    | "danger"
+    | "success"
+    | "ghost"
+    | "active"
+    | "disabled"
+    | "uncommon"
+    | "rare"
+    | "mythic";
   size?: "sm" | "md" | "lg" | "tiny" | "full" | "xs";
   rounded?: "none" | "xs" | "sm" | "md" | "lg" | "full";
   children: React.ReactNode;

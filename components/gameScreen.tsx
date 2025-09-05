@@ -34,7 +34,7 @@ export default function GameScreen({
       isFlipped.value = 1;
       setUnveiled(false);
     }
-  }, [card, isFlipped, setUnveiled]);
+  }, [card, isFlipped, setUnveiled, unveiled]);
 
   if (role === "" || card === DefaultCard) {
     return (
