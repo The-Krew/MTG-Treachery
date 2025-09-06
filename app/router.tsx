@@ -20,12 +20,10 @@ export default function Router({
   // --------------------------------------------------------------------------------------
   // Context
   const { openModal } = useInfoModalContext();
-  const { setCode, setRole, setCard } = usePlayerContext();
+  const { setCode, setRole, setCard, players, setPlayers } = usePlayerContext();
 
   // --------------------------------------------------------------------------------------
   // State
-
-  const [players, setPlayers] = React.useState<Player[]>([]);
 
   const [gameState, setGameState] = React.useState<boolean>(false);
 
@@ -43,8 +41,10 @@ export default function Router({
               const pBody: InfoPreParsed = res.body as InfoPreParsed;
               const ps: Player[] = [];
               for (const p of pBody.players) {
-                ps.push({ name: p, role: "" });
+                const pparsed: Player = JSON.parse(p);
+                ps.push({ name: pparsed.name, role: pparsed.role } as Player);
               }
+
               setPlayers(ps);
               return;
             }
@@ -160,8 +160,8 @@ export default function Router({
   // --------------------------------------------------------------------------------------
   // Render
   if (!gameState) {
-    return <LobbyScreen wsRef={wsRef} players={players} />;
+    return <LobbyScreen wsRef={wsRef} />;
   } else {
-    return <GameScreen wsRef={wsRef} players={players} />;
+    return <GameScreen wsRef={wsRef} />;
   }
 }

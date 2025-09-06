@@ -8,6 +8,7 @@ export default function LobbyPlayers() {
   // --------------------------------------------------------------------------------------
   // Context
   const { idRef, players } = usePlayerContext();
+  console.log("Rendering LobbyPlayers with players:", players);
   return (
     <>
       <View className="w-full h-2/6  px-6 bg-zinc-600/20 rounded-2xl">
@@ -20,7 +21,7 @@ export default function LobbyPlayers() {
           </View>
         </View>
         <ScrollView className="w-full h-full ">
-          {players.map((player, index) => {
+          {players.map((player: Player, index: number) => {
             return (
               <View key={index} className="w-full h-16 my-2">
                 <View

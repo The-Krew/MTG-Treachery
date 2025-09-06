@@ -14,7 +14,7 @@
  */
 
 type Request = {
-  type: "lobby" | "info" | "game" | "ping";
+  type: "lobby" | "info" | "game";
   method:
     | "create"
     | "join"
@@ -23,13 +23,12 @@ type Request = {
     | "start"
     | "stop"
     | "unveil"
-    | "lobby"
-    | "heartbeat"
-    | "state";
+    | "lobby";
   body:
     | { code: string }
     | { code: string; player: string; role: string }
-    | { code: string; rarity: string };
+    | { code: string; rarity: string }
+    | {};
 };
 
 /*
@@ -63,7 +62,7 @@ type Request = {
  */
 
 type Response = {
-  type: "lobby" | "info" | "game" | "pong";
+  type: "lobby" | "info" | "game";
   method:
     | "create"
     | "join"
@@ -72,16 +71,17 @@ type Response = {
     | "start"
     | "stop"
     | "unveil"
-    | "lobby"
-    | "heaertbeat"
-    | "state";
+    | "lobby";
   message?: string;
   body: LobbyBody | InfoBody | StartGameBody | StopGameBody | UnveilBody | {};
 };
 
 // Bodies for specific responses
 export type LobbyBody = { code: string };
-export type InfoPreParsed = { code: string; players: string[] };
+export type InfoPreParsed = {
+  code: string;
+  players: string[];
+};
 export type InfoBody = { code: string; players: Player[] };
 export type StartGameBody = {
   code: string;
@@ -92,19 +92,11 @@ export type StartGameBody = {
 export type StopGameBody = { code: string; running: boolean; role: string };
 export type UnveilBody = { player: Player; role: string };
 
-export type StateBody = {
-  code: string;
-  running: boolean;
-  role: string;
-  card: Card;
-  players: string[];
-  unveiled: boolean;
-};
-
 // Player structure used in the "info" response body
 export type Player = {
   name: string;
   role: string;
+
   alive?: boolean;
 };
 
