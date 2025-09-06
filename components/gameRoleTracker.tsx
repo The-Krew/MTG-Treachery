@@ -18,7 +18,7 @@ export default function GameRoleTracker() {
   const { players } = usePlayerContext();
 
   return (
-    <View className="w-full h-[10%] bg-zinc-900 rounded-lg flex flex-row gap-2 pt-2 mb-4 justify-center items-center ">
+    <View className="w-full h-[10%] bg-transparent rounded-lg flex flex-row gap-2 pt-2 mb-4 justify-center items-center ">
       {players.map((player, index) => {
         return (
           <View key={index}>
