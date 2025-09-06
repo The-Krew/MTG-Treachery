@@ -11,6 +11,8 @@ import LobbyScreen from "@/components/lobbyScreen";
 import GameScreen from "@/components/gameScreen";
 import { useInfoModalContext } from "@/components/interface/status";
 import { usePlayerContext } from "@/components/playerContext";
+import Container from "@/components/ui/container";
+import { Text } from "react-native";
 
 export default function Router({
   wsRef,
@@ -20,18 +22,24 @@ export default function Router({
   // --------------------------------------------------------------------------------------
   // Context
   const { openModal } = useInfoModalContext();
-  const { setCode, setRole, setCard, players, setPlayers } = usePlayerContext();
+  const {
+    setCode,
+    setRole,
+    setCard,
+    players,
+    setPlayers,
+    setUnveiled,
+    setGameState,
+    gameState,
+  } = usePlayerContext();
 
   // --------------------------------------------------------------------------------------
   // State
-
-  const [gameState, setGameState] = React.useState<boolean>(false);
 
   React.useEffect(() => {
     if (wsRef.current) {
       wsRef.current.onmessage = (event) => {
         const message = event.data;
-        console.log("Message from server:", message);
 
         try {
           const res: Response = JSON.parse(message);
@@ -113,6 +121,7 @@ export default function Router({
                 setGameState(false);
                 setRole("");
                 setCard(DefaultCard);
+                setUnveiled(false);
                 players.forEach((p) => (p.role = ""));
               }
             }
@@ -126,13 +135,17 @@ export default function Router({
               } else {
                 if (res.body) {
                   const uBody: UnveilBody = res.body as UnveilBody;
-                  setPlayers((prevPlayers) =>
-                    prevPlayers.map((p) =>
-                      p.name === uBody.player.name
-                        ? { ...p, role: uBody.player.role }
-                        : p,
-                    ),
+                  const pparsed: Player = JSON.parse(uBody.player as string);
+                  const playersCopy = [...players];
+                  const index = playersCopy.findIndex(
+                    (p) => p.name === pparsed.name,
                   );
+
+                  if (index !== -1) {
+                    playersCopy[index].role = pparsed.role;
+                  }
+                  console.log(playersCopy);
+                  setPlayers(playersCopy);
                 }
               }
             }
@@ -156,7 +169,17 @@ export default function Router({
         }
       };
     }
-  }, [wsRef, openModal, players, setCode, setRole, setCard]);
+  }, [
+    wsRef,
+    openModal,
+    players,
+    setCode,
+    setRole,
+    setCard,
+    setPlayers,
+    setUnveiled,
+    setGameState,
+  ]);
   // --------------------------------------------------------------------------------------
   // Render
   if (!gameState) {

@@ -52,38 +52,37 @@ export default function WebSocketWrapper() {
         };
         wsRef.current.onmessage = (event) => {
           const message = event.data;
-          console.log("Message from server:", message);
 
           try {
             const res: Response = JSON.parse(message);
+            if (res.type === "info" && res.body) {
+              if (res.method === "state") {
+                /*
+                 * -------------------------------
+                 * State command for reconnecting to grab all player info
+                 * -------------------------------
+                 */
+                const stBody: StateBody = res.body as StateBody;
+                console.log("StateBody index:", stBody);
+                setCode(stBody.code);
+                setGameState(stBody.running);
+                setRole(stBody.role);
+                setCard(stBody.card);
+                setUnveiled(stBody.unveiled);
 
-            if (res.method === "state" && res.body) {
-              /*
-               * -------------------------------
-               * State command for reconnecting to grab all player info
-               * -------------------------------
-               */
-              const stBody: StateBody = res.body as StateBody;
-              console.log("StateBody index:", stBody);
-              setCode(stBody.code);
-              setGameState(stBody.running);
-              setRole(stBody.role);
-              setCard(stBody.card);
-              setUnveiled(stBody.unveiled);
-
-              const pparsedList: Player[] = [];
-              stBody.players.forEach((p: string) => {
-                const pparsed = JSON.parse(p) as Player;
-                pparsedList.push(pparsed);
-              });
-              setPlayers(pparsedList);
+                const pparsedList: Player[] = [];
+                stBody.players.forEach((p: string) => {
+                  const pparsed = JSON.parse(p) as Player;
+                  pparsedList.push(pparsed);
+                });
+                setPlayers(pparsedList);
+              }
             }
           } catch (error) {
             console.error("Failed to parse message from server:", error);
           }
         };
       }
-      console.log("AppState changed to", nextState);
     };
     const subscription = AppState.addEventListener(
       "change",
@@ -97,7 +96,6 @@ export default function WebSocketWrapper() {
     if (!idRef?.current) return;
 
     if (wsRef.current === null || wsRef.current.readyState !== WebSocket.OPEN) {
-      console.log(idRef?.current);
       wsRef.current = new WebSocket(
         "wss://treachery.thekrew.app:3000/" + idRef?.current,
       );
@@ -110,7 +108,6 @@ export default function WebSocketWrapper() {
         method: "state",
         body: { code: "" },
       };
-      console.log("WebSocket connected sending state request");
       wsRef.current?.send(JSON.stringify(req));
     };
 
@@ -120,6 +117,9 @@ export default function WebSocketWrapper() {
       setCard(DefaultCard);
       setRole("");
       setPlayers([]);
+      setGameState(false);
+      setUnveiled(false);
+
       setCode("");
 
       wsRef.current = null;

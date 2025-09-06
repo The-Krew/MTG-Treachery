@@ -20,7 +20,6 @@ export default function LobbyDetails({
   // --------------------------------------------------------------------------------------
   // States
   const { code, setCode } = usePlayerContext();
-  console.log("LobbyDetails rerender", { code });
   const { openModal } = useInfoModalContext();
 
   // --------------------------------------------------------------------------------------
@@ -145,7 +144,7 @@ export default function LobbyDetails({
   }
   return (
     <>
-      <View className="w-full h-50 items-center justify-center bg-zinc-600/20 rounded-2xl py-5 ">
+      <View className="w-full items-center justify-center bg-zinc-600/20 rounded-2xl py-5 ">
         <View className="w-full h-20 flex-row items-center justify-center gap-4">
           <View className="w-32 h-min bg-purple-500/10 border border-purple-300/50 px-4 py-2 rounded-full flex items-center justify-center">
             <Text

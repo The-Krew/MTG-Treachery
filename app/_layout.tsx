@@ -36,8 +36,6 @@ export default function Layout() {
     setUnveiled,
   };
 
-  console.log("Player Context Value:", playerContextValue);
-
   return (
     <PlayerContext.Provider value={playerContextValue}>
       <ConfirmModal>

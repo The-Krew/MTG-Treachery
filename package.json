@@ -1,13 +1,15 @@
 {
   "name": "mtg-treachery",
   "main": "expo-router/entry",
-  "version": "4.1.1",
+  "version": "4.1.2",
   "scripts": {
     "start": "expo start",
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
-    "lint": "expo lint"
+    "lint": "expo lint",
+    "build:eas": "eas build --platform android",
+    "build:local": "eas build --platform android --local"
   },
   "dependencies": {
     "@expo/vector-icons": "^14.1.0",

@@ -38,6 +38,7 @@ export default function LobbyJoin({
     }
 
     if (lcode && code === "") {
+      lcode = lcode.toUpperCase();
       const req: Request = {
         type: "lobby",
         method: "join",
@@ -63,12 +64,13 @@ export default function LobbyJoin({
 
   return (
     <>
-      <View className=" w-full h-28 flex-row gap-8 bg-zinc-600/20 rounded-2xl  items-center justify-center px-4">
+      <View className=" w-full py-4 flex-row gap-8 bg-zinc-600/20 rounded-2xl  items-center justify-center px-4">
         <View className=" w-36  px-2 border-2 border-purple-300/50 rounded-lg bg-zinc-600/10 focus:bg-zinc-600/20  transition-colors duration-75 ease-in-out">
           <TextInput
             value={text}
             onChangeText={onChangeText}
             placeholder="XXXXXX"
+            keyboardType="default"
             autoCapitalize="characters"
             placeholderTextColor="#9CA3AF"
             maxLength={6}

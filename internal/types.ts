@@ -14,7 +14,7 @@
  */
 
 type Request = {
-  type: "lobby" | "info" | "game";
+  type: "lobby" | "info" | "game" | "ping";
   method:
     | "create"
     | "join"
@@ -23,7 +23,9 @@ type Request = {
     | "start"
     | "stop"
     | "unveil"
-    | "lobby";
+    | "lobby"
+    | "state"
+    | "heartbeat";
   body:
     | { code: string }
     | { code: string; player: string; role: string }
@@ -62,7 +64,7 @@ type Request = {
  */
 
 type Response = {
-  type: "lobby" | "info" | "game";
+  type: "lobby" | "info" | "game" | "pong";
   method:
     | "create"
     | "join"
@@ -71,7 +73,9 @@ type Response = {
     | "start"
     | "stop"
     | "unveil"
-    | "lobby";
+    | "lobby"
+    | "state"
+    | "heartbeat";
   message?: string;
   body: LobbyBody | InfoBody | StartGameBody | StopGameBody | UnveilBody | {};
 };
@@ -90,7 +94,7 @@ export type StartGameBody = {
   card: Card;
 };
 export type StopGameBody = { code: string; running: boolean; role: string };
-export type UnveilBody = { player: Player; role: string };
+export type UnveilBody = { player: string };
 
 // Player structure used in the "info" response body
 export type Player = {

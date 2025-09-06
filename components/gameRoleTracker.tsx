@@ -31,6 +31,7 @@ export default function GameRoleTracker() {
 }
 
 function PlayerAvatar({ player }: { player: Player }) {
+  console.log(player);
   return (
     <View className="w-12 h-10 flex flex-col items-center justify-center gap-1">
       <Text className="text-white text-sm">{player.name}</Text>
