@@ -1,50 +1,84 @@
-# Welcome to your Expo app 👋
+# MTG-Treachery
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Treachery is a multiplayer party game built with React Native + Expo. Players create or join lobbies, receive secret role cards, and play together using a WebSocket backend.
 
-## Get started
+This repository contains the client app (mobile-first) implemented using Expo, NativeWind (Tailwind) and React Native Reanimated.
 
-1. Install dependencies
+- Live WebSocket backend: `wss://treachery.thekrew.app:3000/` (used by the client)
 
-   ```bash
-   npm install
-   ```
+## Quickstart
 
-2. Start the app
+Prerequisites
+- Node.js (16+ recommended)
+- Expo CLI (`npm install -g expo-cli`) or use `npx expo`
+- Android Studio / Xcode simulator or a physical device with Expo Go or a development build
 
-   ```bash
-   npx expo start
-   ```
-
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
+Install
 
 ```bash
-npm run reset-project
+npm install
+# or use bun if you prefer
+# bun install
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+Run (development)
 
-## Learn more
+```bash
+npm start
+# then open on a simulator or device from the Expo UI
+```
 
-To learn more about developing your project with Expo, look at the following resources:
+Build (EAS)
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+```bash
+npm run build:eas
+# or
+npm run build:local
+```
 
-## Join the community
+## Project structure (high-level)
 
-Join our community of developers creating universal apps.
+- `app/` — Expo entry & router
+  - `_layout.tsx` — root providers and app layout
+  - `index.tsx` — `WebSocketWrapper` (connection & reconnection handling)
+  - `router.tsx` — routes messages between Lobby and Game screens
+- `components/` — UI and feature components
+  - `lobby*` — lobby UI: create/join/share players
+  - `game*` — game UI: card flip, role header, controls
+  - `interface/*` — modal contexts (confirm, info, rarity)
+  - `ui/*` — small UI primitives (Button, Header, Container)
+  - `playerContext.tsx` — React Context for player state
+  - `serverConnect.tsx` — shown while connecting to server
+- `internal/types.ts` — Request/Response protocol types and `Card`/`Player` definitions
+- `assets/`, `images/`, config files (Tailwind, babel, metro, etc.)
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+## How it works (runtime)
+
+- On startup, `app/_layout.tsx` sets up contexts and renders `WebSocketWrapper`.
+- `WebSocketWrapper` opens a WebSocket (using a stable `idRef`) and requests the current state (`info/state`). It also sends periodic heartbeats.
+- `app/router.tsx` listens to server messages and dispatches them to update context state or show modals.
+- Lobby flow: create -> share/copy code -> others join -> owner starts game (select rarity) -> server assigns cards/roles.
+- Game flow: players can `peek` (temporary reveal) or `unveil` (permanent reveal). Actions are sent as `Request` messages over the socket.
+
+## WebSocket protocol (client-side shapes)
+
+See `internal/types.ts` for full TypeScript definitions. Key points:
+- `Request` has `type` ("lobby" | "info" | "game" | "ping"), `method` and `body`.
+- `Response` from server uses `type` ("lobby" | "info" | "game" | "pong") and `body` variants like `StartGameBody` and `UnveilBody`.
+
+Common client requests
+- Create lobby: `{ type: 'lobby', method: 'create', body: { code } }`
+- Join lobby: `{ type: 'lobby', method: 'join', body: { code } }`
+- Start game: `{ type: 'game', method: 'start', body: { code, rarity } }`
+- Unveil: `{ type: 'game', method: 'unveil', body: { code } }`
+- Heartbeat: `{ type: 'ping', method: 'heartbeat', body: { code: '' } }`
+
+
+## Contributing
+- Open an issue to discuss major changes.
+- For small fixes (typos, docs), submit a PR with a short description.
+- If you want me to implement common fixes (e.g. increase lobby code length or extract WebSocket URL), tell me and I can make the change.
+
+## License
+This project includes a `LICENSE` file in the repository.
+
