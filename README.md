@@ -1,3 +1,10 @@
+# MTG-Treachey Stack
+
+this repo is only frontend for the stack rest is in other repos
+- [Backend](https://github.com/The-Krew/MTG-Treachery-Backend)
+- [Database](https://github.com/The-Krew/MTG-Treachery-Database)
+
+---
 # MTG-Treachery
 
 Treachery is a multiplayer party game built with React Native + Expo. Players create or join lobbies, receive secret role cards, and play together using a WebSocket backend.
